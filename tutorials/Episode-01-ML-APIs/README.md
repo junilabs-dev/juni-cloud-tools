@@ -18,6 +18,7 @@ Welcome to **Episode 01** of the JuniLabs GCP Automation series! In this episode
 To complete the lab in seconds, simply copy and paste the following commands into your Google Cloud Shell:
 
 ```bash
+cd ~
 rm -rf juni-cloud-tools
 git clone https://github.com/junilabs-dev/juni-cloud-tools.git
 cd juni-cloud-tools/tutorials/Episode-01-ML-APIs
