@@ -86,8 +86,15 @@ print("Patched successfully!")
 PATCHCODE
 success "Script patched!"
 
-print_info "Running analyze-images-v2.py (may take 2-3 minutes)..."
-python3 analyze-images-v2.py "$PROJECT_ID" "$PROJECT_ID"
+print_info "Running analyze-images-v2.py (handling IAM propagation delays)..."
+for ((i=1; i<=6; i++)); do
+    if python3 analyze-images-v2.py "$PROJECT_ID" "$PROJECT_ID"; then
+        break
+    else
+        warning "IAM/Key propagating... Retrying in 10s ($i/6)"
+        sleep 10
+    fi
+done
 
 # Restore env var for checkpoint verification
 export GOOGLE_APPLICATION_CREDENTIALS="${PWD}/sample-sa-key.json"
