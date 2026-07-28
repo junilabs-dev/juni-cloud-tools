@@ -1,29 +1,54 @@
 #!/bin/bash
 set -euo pipefail
 
-# Note the path to utils.sh since we are inside tutorials/Episode-01-ML-APIs/
 source ../../bash/utils.sh
 
 print_banner
-print_info "Starting Episode 01: ML APIs Setup..."
+print_info "Starting GSP329: ML APIs Challenge Lab Automation..."
 echo ""
 
 PROJECT_ID=$(gcloud config get-value project 2>/dev/null || echo "")
 if [ -z "$PROJECT_ID" ]; then
-    error "Project ID not found. Please run: gcloud auth login"
+    error "Project ID not found."
     exit 1
 fi
 success "Active Project: ${BOLD}${PROJECT_ID}${NC}"
 echo ""
 
-print_info "Enabling Vision API..."
-gcloud services enable vision.googleapis.com || warning "Vision API already enabled."
+# 1. Create Service Account and Assign Roles
+SA_NAME="ml-api-sa"
+SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
-print_info "Enabling Natural Language API..."
-gcloud services enable language.googleapis.com || warning "Language API already enabled."
+print_info "Creating Service Account: $SA_NAME"
+gcloud iam service-accounts create $SA_NAME --display-name="ML API Service Account" || true
 
-print_info "Enabling Speech-to-Text API..."
-gcloud services enable speech.googleapis.com || warning "Speech API already enabled."
+print_info "Assigning Roles (Storage & BigQuery)..."
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="roles/bigquery.dataEditor" >/dev/null
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="roles/storage.objectAdmin" >/dev/null
+
+print_info "Creating and downloading Service Account Key..."
+gcloud iam service-accounts keys create key.json \
+    --iam-account=$SA_EMAIL >/dev/null
+export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/key.json
+
+# 2. Download and Modify Python Script
+print_info "Downloading Python script from Cloud Storage..."
+gsutil cp gs://$PROJECT_ID/analyze-images-v2.py .
+
+print_info "Injecting Solution Code into Python script..."
+sed -i 's/# TBD: Create a Vision API image object/image_object = vision.Image(content=file_content)/g' analyze-images-v2.py
+sed -i 's/# TBD: Detect text in the image/response = vision_client.document_text_detection(image=image_object)/g' analyze-images-v2.py
+sed -i "s/# TBD: According to the target language pass the description data to the translation API/translation = translate_client.translate(desc, target_language='ja')/g" analyze-images-v2.py
+sed -i 's/# errors = bq_client.insert_rows(table, rows_for_bq)/errors = bq_client.insert_rows(table, rows_for_bq)/g' analyze-images-v2.py
+
+# 3. Run the script
+print_info "Running the Python script (This may take a minute)..."
+python3 analyze-images-v2.py $PROJECT_ID $PROJECT_ID
 
 echo ""
-success "🎉 Episode 01 Setup Complete!"
+success "🎉 Lab Automation Complete! Check your Qwiklabs score now!"
