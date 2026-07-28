@@ -56,7 +56,7 @@ def run(project_id, bucket_name):
     table_ref = bq_client.dataset("image_classification_dataset").table("image_text_detail")
     table     = bq_client.get_table(table_ref)
 
-    bucket  = storage_client.get_bucket(bucket_name)
+    bucket  = storage_client.bucket(bucket_name)
     blobs   = bucket.list_blobs()
     rows_for_bq = []
 
