@@ -87,8 +87,6 @@ PATCHCODE
 success "Script patched!"
 
 print_info "Running analyze-images-v2.py (may take 2-3 minutes)..."
-# Use default Cloud Shell credentials (Owner role — guaranteed to work)
-unset GOOGLE_APPLICATION_CREDENTIALS
 python3 analyze-images-v2.py "$PROJECT_ID" "$PROJECT_ID"
 
 # Restore env var for checkpoint verification
