@@ -23,21 +23,24 @@ print_info "Creating Service Account..."
 gcloud iam service-accounts create "$SA_NAME" \
     --display-name="ML API Service Account" 2>/dev/null || true
 
-print_info "Assigning BigQuery & Storage roles..."
+print_info "Assigning IAM roles..."
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
     --member="serviceAccount:${SA_EMAIL}" \
-    --role="roles/bigquery.dataEditor" --quiet
+    --role="roles/bigquery.dataEditor" --quiet 2>/dev/null
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
     --member="serviceAccount:${SA_EMAIL}" \
-    --role="roles/storage.objectAdmin" --quiet
+    --role="roles/storage.objectAdmin" --quiet 2>/dev/null
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:${SA_EMAIL}" \
+    --role="roles/serviceusage.serviceUsageConsumer" --quiet 2>/dev/null
+success "Roles assigned!"
 
 print_info "Creating fresh credential key..."
 rm -f key.json
 gcloud iam service-accounts keys create key.json \
     --iam-account="${SA_EMAIL}"
 export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/key.json"
-success "key.json created. Waiting 15s for IAM to propagate..."
-sleep 15
+success "key.json created!"
 
 # ── Step 2: Write the complete Python solution directly ──────────────────────
 print_info "Writing complete Python solution..."
