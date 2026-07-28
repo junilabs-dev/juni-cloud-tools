@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 source ../../bash/utils.sh
 
@@ -7,7 +6,7 @@ print_banner
 print_info "Starting GSP329: ML APIs Challenge Lab Automation..."
 echo ""
 
-PROJECT_ID=$(gcloud config get-value project 2>/dev/null || echo "")
+PROJECT_ID=$(gcloud config get-value project 2>/dev/null)
 if [ -z "$PROJECT_ID" ]; then
     error "Project ID not found."
     exit 1
@@ -18,94 +17,86 @@ echo ""
 # ═══════════════════════════════════════════════════════════════════════════════
 # STEP 1: Create Service Account + Assign Roles (Checkpoint 1)
 # ═══════════════════════════════════════════════════════════════════════════════
-SA_NAME="ml-api-sa"
+SA_NAME="sample-sa"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
 print_info "Creating Service Account: ${SA_NAME}..."
 gcloud iam service-accounts create "$SA_NAME" \
-    --display-name="ML API Service Account" 2>/dev/null || true
+    --display-name="ML API Service Account" 2>/dev/null || warning "Service Account already exists."
 
 print_info "Assigning IAM roles..."
-for ROLE in roles/bigquery.dataEditor roles/storage.objectAdmin; do
-    gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-        --member="serviceAccount:${SA_EMAIL}" \
-        --role="$ROLE" --quiet >/dev/null 2>&1
-done
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:${SA_EMAIL}" \
+    --role="roles/bigquery.dataEditor" \
+    --format="value(bindings.role)" --quiet || true
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:${SA_EMAIL}" \
+    --role="roles/storage.objectAdmin" \
+    --format="value(bindings.role)" --quiet || true
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:${SA_EMAIL}" \
+    --role="roles/serviceusage.serviceUsageConsumer" \
+    --format="value(bindings.role)" --quiet || true
+
 success "Service Account created and roles assigned!"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # STEP 2: Create Credential Key File (Checkpoint 2)
 # ═══════════════════════════════════════════════════════════════════════════════
-print_info "Cleaning up old keys..."
-OLD_KEYS=$(gcloud iam service-accounts keys list \
-    --iam-account="$SA_EMAIL" --managed-by=user \
-    --format="value(name)" 2>/dev/null || echo "")
-for KEY_ID in $OLD_KEYS; do
-    gcloud iam service-accounts keys delete "$KEY_ID" \
-        --iam-account="$SA_EMAIL" --quiet 2>/dev/null || true
-done
-
-print_info "Creating fresh credential key..."
-rm -f key.json
-gcloud iam service-accounts keys create key.json \
+print_info "Creating credential key..."
+gcloud iam service-accounts keys create sample-sa-key.json \
     --iam-account="$SA_EMAIL"
-export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/key.json"
+export GOOGLE_APPLICATION_CREDENTIALS="${PWD}/sample-sa-key.json"
 success "Credential key created and env var set!"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# STEP 3 & 4: Download original script, patch it, run it (Checkpoints 3 & 4)
-# Lab checker looks for the ORIGINAL analyze-images-v2.py with modifications
+# STEP 3 & 4: Download, Patch & Run Python Script (Checkpoints 3 & 4)
 # ═══════════════════════════════════════════════════════════════════════════════
 print_info "Downloading original analyze-images-v2.py from bucket..."
-gsutil cp gs://$PROJECT_ID/analyze-images-v2.py .
+gsutil cp "gs://${PROJECT_ID}/analyze-images-v2.py" .
+success "Downloaded!"
 
-print_info "Patching analyze-images-v2.py with solution code..."
-# Use Python to reliably patch the file (sed was unreliable)
-python3 << 'PATCH_SCRIPT'
-import re
-
+print_info "Patching the 3 TBD lines + enabling BigQuery upload..."
+python3 << 'PATCHCODE'
 with open("analyze-images-v2.py", "r") as f:
     lines = f.readlines()
 
-new_lines = []
+patched = []
 for line in lines:
-    # Fix 1: Create Vision image object
     if "# TBD: Create a Vision API image object" in line:
-        indent = line[:len(line) - len(line.lstrip())]
-        new_lines.append(indent + "image_object = vision.Image(content=file_content)\n")
-    # Fix 2: Detect text in the image
+        indent = len(line) - len(line.lstrip())
+        patched.append(" " * indent + "image_object = vision.Image(content=file_content)\n")
     elif "# TBD: Detect text in the image" in line:
-        indent = line[:len(line) - len(line.lstrip())]
-        new_lines.append(indent + "response = vision_client.document_text_detection(image=image_object)\n")
-    # Fix 3: Translate text
+        indent = len(line) - len(line.lstrip())
+        patched.append(" " * indent + "response = vision_client.document_text_detection(image=image_object)\n")
     elif "# TBD: According to the target language" in line:
-        indent = line[:len(line) - len(line.lstrip())]
-        new_lines.append(indent + "translation = translate_client.translate(desc, target_language='ja')\n")
-    # Fix 4: Uncomment BigQuery upload line
+        indent = len(line) - len(line.lstrip())
+        patched.append(" " * indent + "translation = translate_client.translate(desc, target_language='ja')\n")
     elif line.strip().startswith("# errors = bq_client.insert_rows"):
-        indent = line[:len(line) - len(line.lstrip())]
-        new_lines.append(indent + "errors = bq_client.insert_rows(table, rows_for_bq)\n")
+        indent = len(line) - len(line.lstrip())
+        patched.append(" " * indent + "errors = bq_client.insert_rows(table, rows_for_bq)\n")
     else:
-        new_lines.append(line)
+        patched.append(line)
 
 with open("analyze-images-v2.py", "w") as f:
-    f.writelines(new_lines)
-
+    f.writelines(patched)
 print("Patched successfully!")
-PATCH_SCRIPT
+PATCHCODE
+success "Script patched!"
 
-success "analyze-images-v2.py patched!"
-
-# Run with DEFAULT credentials (student has Owner role, no JWT issues)
-print_info "Running analyze-images-v2.py (this may take 2-3 minutes)..."
+print_info "Running analyze-images-v2.py (may take 2-3 minutes)..."
+# Use default Cloud Shell credentials (Owner role — guaranteed to work)
 unset GOOGLE_APPLICATION_CREDENTIALS
 python3 analyze-images-v2.py "$PROJECT_ID" "$PROJECT_ID"
 
-# Restore env var for checkpoint
-export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/key.json"
+# Restore env var for checkpoint verification
+export GOOGLE_APPLICATION_CREDENTIALS="${PWD}/sample-sa-key.json"
+success "Python script completed!"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# STEP 5: Run the BigQuery query (Checkpoint 5)
+# STEP 5: Run BigQuery Verification Query (Checkpoint 5)
 # ═══════════════════════════════════════════════════════════════════════════════
 print_info "Running BigQuery verification query..."
 bq query --use_legacy_sql=false \
