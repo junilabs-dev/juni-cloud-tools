@@ -33,7 +33,7 @@ bq query --use_legacy_sql=false "SELECT sum(cumulative_confirmed) as total_cases
 
 # Task 2
 print_info "[Task 2] Worst affected areas..."
-bq query --use_legacy_sql=false "SELECT count(DISTINCT subregion1_name) as count_of_states FROM \`bigquery-public-data.covid19_open_data.covid19_open_data\` WHERE country_name = 'United States of America' AND date = '${T2_DATE}' AND cumulative_deceased > ${T2_DEATH}"
+bq query --use_legacy_sql=false "SELECT count(DISTINCT subregion1_name) as count_of_states FROM \`bigquery-public-data.covid19_open_data.covid19_open_data\` WHERE country_name = 'United States of America' AND date = '${T2_DATE}' AND cumulative_deceased > ${T2_DEATH} AND subregion1_name IS NOT NULL"
 
 # Task 3
 print_info "[Task 3] Identify hotspots..."
