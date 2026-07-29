@@ -45,12 +45,19 @@ jq --arg projectId "${PARTNER_PROJECT}" \
 bq update --source partner_ds_updated.json "${PARTNER_PROJECT}:demo_dataset"
 
 print_info "[Task 1] Granting Data Viewer role to Customer User..."
-bq get-iam-policy "table:${PARTNER_PROJECT}:demo_dataset.${PARTNER_VIEW}" > partner_policy.json
-jq --arg member "user:${CUSTOMER_USER}" \
-   --arg role "roles/bigquery.dataViewer" \
-   '.bindings = (.bindings // []) + [{"role": $role, "members": [$member]}]' \
-   partner_policy.json > partner_policy_updated.json
-bq set-iam-policy partner_policy_updated.json "table:${PARTNER_PROJECT}:demo_dataset.${PARTNER_VIEW}"
+cat <<EOF > partner_policy.json
+{
+  "bindings": [
+    {
+      "role": "roles/bigquery.dataViewer",
+      "members": [
+        "user:${CUSTOMER_USER}"
+      ]
+    }
+  ]
+}
+EOF
+bq set-iam-policy partner_policy.json "table:${PARTNER_PROJECT}:demo_dataset.${PARTNER_VIEW}"
 
 success "Task 1 Complete!"
 
@@ -58,11 +65,14 @@ success "Task 1 Complete!"
 # TASK 2: Update the customer data table
 # ═══════════════════════════════════════════════════════════════════════════════
 print_info "[Task 2] Updating customer data table..."
-bq --project_id="${CUSTOMER_PROJECT}" query --use_legacy_sql=false \
+if ! bq --project_id="${CUSTOMER_PROJECT}" query --use_legacy_sql=false \
 "UPDATE \`${CUSTOMER_PROJECT}.customer_dataset.customer_info\` cust
 SET cust.county=vw.county
 FROM \`${PARTNER_PROJECT}.demo_dataset.${PARTNER_VIEW}\` vw
-WHERE vw.zip_code=cust.postal_code;"
+WHERE vw.zip_code=cust.postal_code;"; then
+    echo -e "${RED}❌ Permission Denied on Customer Project!${NC}"
+    echo -e "${YELLOW}Please open a new Incognito window, login with Customer Username, open Cloud Shell, and run this script again for Task 2 & 3.${NC}"
+fi
 
 success "Task 2 Complete!"
 
@@ -84,12 +94,19 @@ jq --arg projectId "${CUSTOMER_PROJECT}" \
 bq update --source customer_ds_updated.json "${CUSTOMER_PROJECT}:customer_dataset"
 
 print_info "[Task 3] Granting Data Viewer role to Partner User..."
-bq get-iam-policy "table:${CUSTOMER_PROJECT}:customer_dataset.${CUSTOMER_VIEW}" > customer_policy.json
-jq --arg member "user:${PARTNER_USER}" \
-   --arg role "roles/bigquery.dataViewer" \
-   '.bindings = (.bindings // []) + [{"role": $role, "members": [$member]}]' \
-   customer_policy.json > customer_policy_updated.json
-bq set-iam-policy customer_policy_updated.json "table:${CUSTOMER_PROJECT}:customer_dataset.${CUSTOMER_VIEW}"
+cat <<EOF > customer_policy.json
+{
+  "bindings": [
+    {
+      "role": "roles/bigquery.dataViewer",
+      "members": [
+        "user:${PARTNER_USER}"
+      ]
+    }
+  ]
+}
+EOF
+bq set-iam-policy customer_policy.json "table:${CUSTOMER_PROJECT}:customer_dataset.${CUSTOMER_VIEW}"
 
 success "Task 3 Complete!"
 
