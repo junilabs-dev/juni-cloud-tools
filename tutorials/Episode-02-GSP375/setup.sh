@@ -27,9 +27,12 @@ fi
 
 echo -e "\n🚀 Starting automation... (Make sure you are running this from the main Cloud Shell)"
 
+CURRENT_USER=$(gcloud config get-value account 2>/dev/null)
+
 # ═══════════════════════════════════════════════════════════════════════════════
-# TASK 1: Create Partner Authorized View
+# TASK 1: Create Partner Authorized View (Only run if Partner)
 # ═══════════════════════════════════════════════════════════════════════════════
+if [[ "$CURRENT_USER" == "$PARTNER_USER" || "$CURRENT_USER" == "" ]]; then
 print_info "[Task 1] Creating Partner Authorized View..."
 bq --project_id="${PARTNER_PROJECT}" mk --use_legacy_sql=false \
     --view="SELECT * FROM \`bigquery-public-data.geo_us_boundaries.zip_codes\`" \
@@ -57,13 +60,17 @@ cat <<EOF > partner_policy.json
   ]
 }
 EOF
-bq set-iam-policy partner_policy.json "table:${PARTNER_PROJECT}:demo_dataset.${PARTNER_VIEW}"
+bq set-iam-policy "table:${PARTNER_PROJECT}:demo_dataset.${PARTNER_VIEW}" partner_policy.json
 
 success "Task 1 Complete!"
+else
+    print_info "Skipping Task 1 (You are logged in as Customer)"
+fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TASK 2: Update the customer data table
+# TASK 2: Update the customer data table (Only run if Customer)
 # ═══════════════════════════════════════════════════════════════════════════════
+if [[ "$CURRENT_USER" == "$CUSTOMER_USER" || "$CURRENT_USER" == "" ]]; then
 print_info "[Task 2] Updating customer data table..."
 if ! bq --project_id="${CUSTOMER_PROJECT}" query --use_legacy_sql=false \
 "UPDATE \`${CUSTOMER_PROJECT}.customer_dataset.customer_info\` cust
@@ -71,7 +78,7 @@ SET cust.county=vw.county
 FROM \`${PARTNER_PROJECT}.demo_dataset.${PARTNER_VIEW}\` vw
 WHERE vw.zip_code=cust.postal_code;"; then
     echo -e "${RED}❌ Permission Denied on Customer Project!${NC}"
-    echo -e "${YELLOW}Please open a new Incognito window, login with Customer Username, open Cloud Shell, and run this script again for Task 2 & 3.${NC}"
+    exit 1
 fi
 
 success "Task 2 Complete!"
@@ -106,9 +113,12 @@ cat <<EOF > customer_policy.json
   ]
 }
 EOF
-bq set-iam-policy customer_policy.json "table:${CUSTOMER_PROJECT}:customer_dataset.${CUSTOMER_VIEW}"
+bq set-iam-policy "table:${CUSTOMER_PROJECT}:customer_dataset.${CUSTOMER_VIEW}" customer_policy.json
 
 success "Task 3 Complete!"
+else
+    print_info "Skipping Tasks 2 & 3 (You are logged in as Partner. Please switch to Customer account in an Incognito window to finish the lab.)"
+fi
 
 echo -e "\n=========================================================="
 echo -e "${BOLD}${GREEN}🎉 Tasks 1, 2, and 3 are COMPLETE! Check your Qwiklabs score.${NC}"
