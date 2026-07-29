@@ -60,7 +60,7 @@ cat <<EOF > partner_policy.json
   ]
 }
 EOF
-bq set-iam-policy "table:${PARTNER_PROJECT}:demo_dataset.${PARTNER_VIEW}" partner_policy.json
+bq set-iam-policy "${PARTNER_PROJECT}:demo_dataset.${PARTNER_VIEW}" partner_policy.json
 
 success "Task 1 Complete!"
 else
@@ -113,7 +113,7 @@ cat <<EOF > customer_policy.json
   ]
 }
 EOF
-bq set-iam-policy "table:${CUSTOMER_PROJECT}:customer_dataset.${CUSTOMER_VIEW}" customer_policy.json
+bq set-iam-policy "${CUSTOMER_PROJECT}:customer_dataset.${CUSTOMER_VIEW}" customer_policy.json
 
 success "Task 3 Complete!"
 else
