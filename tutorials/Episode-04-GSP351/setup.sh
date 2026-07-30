@@ -7,24 +7,16 @@ print_banner
 print_info "Starting GSP351: Migrate MySQL Data to Cloud SQL (Hybrid Automation)..."
 echo ""
 
-# Get Region and Zone
-export ZONE=$(gcloud config get compute/zone)
-export REGION=$(gcloud config get compute/region)
-
-if [ -z "$ZONE" ] || [ -z "$REGION" ]; then
-    echo -e "${RED}Error: ZONE or REGION not set in gcloud config. Please set them first.${NC}"
-    exit 1
-fi
-
 echo -e "${YELLOW}🔍 Fetching Source VM details...${NC}"
 SOURCE_VM=$(gcloud compute instances list --filter="name~'mysql'" --format="value(name)" | head -n 1)
+SOURCE_ZONE=$(gcloud compute instances list --filter="name~'mysql'" --format="value(zone)" | head -n 1)
 
 if [ -z "$SOURCE_VM" ]; then
     echo -e "${RED}Error: Could not find the MySQL source compute instance.${NC}"
     exit 1
 fi
 
-SOURCE_IP=$(gcloud compute instances describe $SOURCE_VM --zone=$ZONE --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+SOURCE_IP=$(gcloud compute instances describe $SOURCE_VM --zone=$SOURCE_ZONE --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
 
 echo -e "\n=========================================================="
 echo -e "${BOLD}${CYAN}🎯 YOUR UNIQUE SOURCE IP: ${WHITE}${SOURCE_IP}${NC}"
@@ -44,9 +36,9 @@ echo ""
 read -p "🛑 PRESS ENTER ONLY AFTER YOUR CONTINUOUS MIGRATION JOB STATUS IS 'RUNNING' " DUMMY
 
 echo -e "\n${GREEN}🚀 Executing Task 4: Testing Replication (Updating DB)...${NC}"
-echo -e "${YELLOW}Please wait, SSHing into the source VM... (Type 'Y' and press Enter if prompted for SSH keys)${NC}"
+echo -e "${YELLOW}Please wait, SSHing into the source VM... (Keys will be auto-generated if missing)${NC}"
 
-gcloud compute ssh $SOURCE_VM --zone=$ZONE --quiet --command="mysql -u admin -pchangeme -e \"use customers_data; update customers set gender = 'FEMALE' where addressKey = 934;\""
+gcloud compute ssh $SOURCE_VM --zone=$SOURCE_ZONE --quiet --command="mysql -u admin -pchangeme -e \"use customers_data; update customers set gender = 'FEMALE' where addressKey = 934;\""
 
 echo -e "\n=========================================================="
 echo -e "${BOLD}${GREEN}✅ Task 4 Backend Update Complete!${NC}"
