@@ -35,7 +35,7 @@ bq query --use_legacy_sql=false "SELECT sum(cumulative_confirmed) as total_cases
 
 # Task 2
 print_info "[Task 2] Worst affected areas..."
-bq query --use_legacy_sql=false "SELECT count(DISTINCT subregion1_name) as count_of_states FROM \`bigquery-public-data.covid19_open_data.covid19_open_data\` WHERE country_name = 'United States of America' AND date = '${T2_DATE}' AND cumulative_deceased > ${T2_DEATH} AND subregion1_name IS NOT NULL"
+bq query --use_legacy_sql=false "SELECT count(*) as count_of_states FROM (SELECT subregion1_name, SUM(cumulative_deceased) as death_count FROM \`bigquery-public-data.covid19_open_data.covid19_open_data\` WHERE country_name = 'United States of America' AND date = '${T2_DATE}' AND subregion1_name IS NOT NULL GROUP BY subregion1_name) WHERE death_count > ${T2_DEATH}"
 
 # Task 3
 print_info "[Task 3] Identify hotspots..."
@@ -47,7 +47,7 @@ bq query --use_legacy_sql=false "SELECT sum(cumulative_confirmed) AS total_confi
 
 # Task 5
 print_info "[Task 5] Identify a specific day..."
-bq query --use_legacy_sql=false "SELECT date FROM \`bigquery-public-data.covid19_open_data.covid19_open_data\` WHERE country_name = 'Italy' AND cumulative_deceased > ${T5_DEATH} ORDER BY date ASC LIMIT 1"
+bq query --use_legacy_sql=false "SELECT date FROM (SELECT date, SUM(cumulative_deceased) AS total_deaths FROM \`bigquery-public-data.covid19_open_data.covid19_open_data\` WHERE country_name = 'Italy' GROUP BY date) WHERE total_deaths > ${T5_DEATH} ORDER BY date ASC LIMIT 1"
 
 # Task 6
 print_info "[Task 6] Find days with zero net new cases..."
