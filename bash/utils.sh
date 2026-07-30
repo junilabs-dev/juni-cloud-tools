@@ -12,6 +12,7 @@ GREEN='\e[32m'
 YELLOW='\e[33m'
 RED='\e[31m'
 CYAN='\e[36m'
+WHITE='\e[97m'
 NC='\e[0m' # No Color
 
 # --- Helper Functions ---
@@ -32,11 +33,24 @@ error() {
 }
 
 print_banner() {
-    echo -e "${CYAN}"
-    echo "================================================================="
-    echo "      🌟 Google Cloud Automation Toolkit - By JuniLabs 🌟      "
-    echo "================================================================="
+    clear
+    echo -e "${CYAN}${BOLD}"
+    echo "        0 1 0 1 1"
+    echo "        1 0 1 0 1"
+    echo "          0 1 0 1"
+    echo "            0 0 1"
+    echo "            1 0 0"
+    echo "            0 1 1"
+    echo "      1 0 1 1 1 0"
+    echo "      0 1 0   1 0"
+    echo "        0 1 1 0 0"
+    echo "          1 0 0 1 0"
     echo -e "${NC}"
+    echo -e "       ${BOLD}${WHITE}@junilabsdev${NC}"
+    echo -e "${BLUE}=========================================${NC}"
+    echo -e "${YELLOW}${BOLD}  🚀 Google Cloud Automation Toolkit 🚀${NC}"
+    echo -e "${BLUE}=========================================${NC}"
+    echo ""
 }
 
 check_command() {
