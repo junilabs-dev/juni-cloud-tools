@@ -13,14 +13,14 @@ This folder contains a **100% Zero-Touch Automation Script** to instantly comple
 1. Open Cloud Shell in your Qwiklabs environment.
 2. Clone the repository and run the setup script:
 
-\`\`\`bash
+```bash
 cd ~
 rm -rf juni-cloud-tools
 git clone https://github.com/junilabs-dev/juni-cloud-tools.git
 cd juni-cloud-tools/tutorials/Episode-05-GSP341
 chmod +x setup.sh
 ./setup.sh
-\`\`\`
+```
 
 ## ⏱️ Note
 BigQuery ML models take time to train (about 2-5 minutes per model). Since this script creates 3 models sequentially, **it will take about 10-15 minutes to fully complete.** Just run it, grab a coffee, and watch the green ticks appear in Qwiklabs! ☕✅
