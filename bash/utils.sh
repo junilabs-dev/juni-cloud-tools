@@ -6,14 +6,14 @@
 # ==============================================================================
 
 # --- Define Colors ---
-BOLD='\e[1m'
-BLUE='\e[34m'
-GREEN='\e[32m'
-YELLOW='\e[33m'
-RED='\e[31m'
-CYAN='\e[36m'
-WHITE='\e[97m'
-NC='\e[0m' # No Color
+BOLD='\033[1m'
+BLUE='\033[34m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+RED='\033[31m'
+CYAN='\033[36m'
+WHITE='\033[97m'
+NC='\033[0m' # No Color
 
 # --- Helper Functions ---
 print_info() {
@@ -54,7 +54,7 @@ print_banner() {
 }
 
 check_command() {
-    if ! command -v "$1" &> /dev/null; then
+    if ! command -v "$1" > /dev/null 2>&1; then
         error "Command '$1' could not be found. Please install it."
         exit 1
     fi
@@ -62,7 +62,7 @@ check_command() {
 
 check_login() {
     print_info "Verifying gcloud authentication..."
-    if ! gcloud auth print-access-token &> /dev/null; then
+    if ! gcloud auth print-access-token > /dev/null 2>&1; then
         error "You are not authenticated with gcloud."
         echo "Run: gcloud auth login"
         exit 1
