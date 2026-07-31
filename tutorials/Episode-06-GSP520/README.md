@@ -13,12 +13,12 @@ This lab requires executing code inside a **Vertex AI Workbench (JupyterLab)** e
 5. Copy and paste the following commands into the terminal:
 
 ```bash
-wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-06-GSP520/juni-cloud-tools-gsp520.ipynb" -O juni-cloud-tools-gsp520.ipynb
+wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-06-GSP520/inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb" -O inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb
 ```
 
 *(Alternatively, you can clone the toolkit inside JupyterLab and run `./setup.sh`)*
 
-6. Double-click to open `juni-cloud-tools-gsp520.ipynb` from the left file explorer in JupyterLab.
+6. Double-click to open `inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb` from the left file explorer in JupyterLab.
 7. Click **Run -> Run All Cells** from the top menu.
 8. Wait a few minutes for the entire notebook to execute.
 9. Go back to Qwiklabs and click **Check my progress** for all tasks.
