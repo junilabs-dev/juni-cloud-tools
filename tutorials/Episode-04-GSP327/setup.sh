@@ -27,7 +27,7 @@ SELECT
     pickup_latitude AS pickuplat, 
     dropoff_longitude AS dropofflon, 
     dropoff_latitude AS dropofflat,
-    passenger_count
+    passenger_count AS passengers
 FROM
     taxirides.historical_taxi_rides_raw
 WHERE
