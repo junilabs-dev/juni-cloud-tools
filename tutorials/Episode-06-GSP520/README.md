@@ -12,9 +12,9 @@ This lab requires executing code inside a **Vertex AI Workbench (JupyterLab)** e
 4. In the JupyterLab Launcher tab (or File -> New), click on **Terminal** to open a command-line interface.
 5. Copy and paste the following commands into the terminal:
 
-\`\`\`bash
+```bash
 wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-06-GSP520/juni-cloud-tools-gsp520.ipynb" -O juni-cloud-tools-gsp520.ipynb
-\`\`\`
+```
 
 *(Alternatively, you can clone the toolkit inside JupyterLab and run `./setup.sh`)*
 
