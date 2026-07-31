@@ -253,7 +253,8 @@ SELECT * FROM ML.PREDICT(MODEL \`ecommerce.finalized_classification_model\`, (
     device.deviceCategory,
     country
   )
-));
+))
+ORDER BY predicted_will_buy_on_return_visit DESC;
 "
 success "Task 4 complete!"
 
