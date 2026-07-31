@@ -222,7 +222,7 @@ SELECT * FROM ML.PREDICT(MODEL \`ecommerce.finalized_classification_model\`, (
   FROM \`data-to-insights.ecommerce.web_analytics\`
   GROUP BY fullvisitorid
   )
-  SELECT * EXCEPT(unique_session_id) FROM (
+  SELECT * FROM (
     SELECT
         CONCAT(fullvisitorid, CAST(visitId AS STRING)) AS unique_session_id,
         will_buy_on_return_visit,
