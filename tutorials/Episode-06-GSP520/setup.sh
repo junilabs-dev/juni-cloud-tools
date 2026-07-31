@@ -1,0 +1,16 @@
+#!/bin/bash
+# Automation Script for GSP520: Inspect Rich Documents with Gemini Multimodality and Multimodal RAG
+# Provided by juni-cloud-tools
+
+echo -e "\e[1;92m🚀 Starting GSP520 Automation... \e[0m"
+
+echo -e "\e[1;96m[INFO] Downloading the solved notebook from Orbit-of-Ops...\e[0m"
+wget "https://raw.githubusercontent.com/Orbit-of-Ops/GCP-Scripts/refs/heads/main/inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb" -O inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb
+
+echo -e "\e[1;92m[SUCCESS] Notebook downloaded successfully!\e[0m"
+echo -e "\e[1;93m[ACTION REQUIRED]\e[0m"
+echo -e "\e[1;97m1. Open the file 'inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb' from the left panel in JupyterLab.\e[0m"
+echo -e "\e[1;97m2. Go to Edit -> Clear All Outputs.\e[0m"
+echo -e "\e[1;97m3. Go to Run -> Run All Cells.\e[0m"
+echo -e "\e[1;97m4. Wait for all cells to finish executing (this may take a few minutes).\e[0m"
+echo -e "\e[1;97m5. Go back to Qwiklabs and click 'Check my progress' for all tasks!\e[0m"
