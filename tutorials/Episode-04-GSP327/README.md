@@ -21,10 +21,11 @@ chmod +x setup.sh
 
 ## 📝 Required Variables
 When you run the script, it will ask for values that are **randomized** for every user. Look closely at your lab manual for:
-*   The name of the new table to create (e.g. `taxi_training_data`)
-*   The minimum trip distance (e.g. `1`, `2`)
-*   The minimum fare amount (e.g. `2`, `3`)
-*   The minimum passenger count (e.g. `1`, `2`)
-*   The model name (usually `Fare`)
+*   The name of the new table to create (e.g. `taxi_training_data_995`)
+*   The target column name (e.g. `fare_amount_332`)
+*   The minimum trip distance (e.g. `3`)
+*   The minimum fare amount (e.g. `3`)
+*   The minimum passenger count (e.g. `3`)
+*   The model name (e.g. `fare_model_103`)
 
 Sit back, relax, and let the script train your AI model and score 100%! 🎯

@@ -9,18 +9,19 @@ echo ""
 
 echo -e "${YELLOW}Please enter the exact randomized values from your Qwiklabs manual:${NC}"
 
-read -p "1. Cleaned Table Name (e.g. taxi_training_data): " TARGET_TABLE
-read -p "2. 'Ensure trip_distance is greater than': " TRIP_DISTANCE
-read -p "3. 'fare_amount is very small (less than \$Value)' (Enter Value): " FARE_AMOUNT
-read -p "4. 'Ensure passenger_count is greater than': " PASSENGER_COUNT
-read -p "5. Model Name (usually 'Fare'): " MODEL_NAME
+read -p "1. Cleaned Table Name (e.g. taxi_training_data_995): " TARGET_TABLE
+read -p "2. Target Column Name (e.g. fare_amount_332): " TARGET_COLUMN
+read -p "3. 'Ensure trip_distance is greater than': " TRIP_DISTANCE
+read -p "4. 'fare_amount is very small (less than \$Value)' (Enter Value): " FARE_AMOUNT
+read -p "5. 'Ensure passenger_count is greater than': " PASSENGER_COUNT
+read -p "6. Model Name (e.g. fare_model_103): " MODEL_NAME
 
 echo ""
 print_info "Starting Task 1: Cleaning the training data..."
 bq query --use_legacy_sql=false "
 CREATE OR REPLACE TABLE taxirides.${TARGET_TABLE} AS
 SELECT
-    (tolls_amount + fare_amount) AS fare_amount,
+    (tolls_amount + fare_amount) AS ${TARGET_COLUMN},
     pickup_datetime,
     pickup_longitude, 
     pickup_latitude, 
@@ -39,6 +40,8 @@ WHERE
     AND dropoff_longitude < -70
     AND pickup_latitude > 37
     AND pickup_latitude < 45
+    AND dropoff_latitude > 37
+    AND dropoff_latitude < 45
     AND rand() < 0.001;
 "
 success "Task 1 complete!"
@@ -53,7 +56,7 @@ TRANSFORM(
   CAST(EXTRACT(DAYOFWEEK FROM pickup_datetime) AS STRING) AS dayofweek,
   CAST(EXTRACT(HOUR FROM pickup_datetime) AS STRING) AS hourofday
 )
-OPTIONS(model_type='linear_reg', input_label_cols=['fare_amount']) 
+OPTIONS(model_type='linear_reg', input_label_cols=['${TARGET_COLUMN}']) 
 AS
 SELECT * FROM taxirides.${TARGET_TABLE};
 "
