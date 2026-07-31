@@ -13,7 +13,7 @@ This lab requires executing code inside a **Vertex AI Workbench (JupyterLab)** e
 5. Copy and paste the following commands into the terminal:
 
 \`\`\`bash
-wget "https://raw.githubusercontent.com/Orbit-of-Ops/GCP-Scripts/refs/heads/main/inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb" -O inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb
+wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-06-GSP520/inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb" -O inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb
 \`\`\`
 
 *(Alternatively, you can clone the toolkit inside JupyterLab and run `./setup.sh`)*

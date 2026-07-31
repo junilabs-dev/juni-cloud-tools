@@ -4,8 +4,8 @@
 
 echo -e "\e[1;92m🚀 Starting GSP520 Automation... \e[0m"
 
-echo -e "\e[1;96m[INFO] Downloading the solved notebook from Orbit-of-Ops...\e[0m"
-wget "https://raw.githubusercontent.com/Orbit-of-Ops/GCP-Scripts/refs/heads/main/inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb" -O inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb
+echo -e "\e[1;96m[INFO] Downloading the solved notebook from juni-cloud-tools...\e[0m"
+wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-06-GSP520/inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb" -O inspect_rich_documents_w_gemini_multimodality_and_multimodal_rag.ipynb
 
 echo -e "\e[1;92m[SUCCESS] Notebook downloaded successfully!\e[0m"
 echo -e "\e[1;93m[ACTION REQUIRED]\e[0m"
