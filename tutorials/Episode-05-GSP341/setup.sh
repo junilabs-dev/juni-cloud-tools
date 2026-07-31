@@ -214,7 +214,7 @@ SELECT * EXCEPT(unique_session_id) FROM (
 "
 
 bq query --use_legacy_sql=false "
-SELECT * FROM ML.PREDICT(MODEL \`ecommerce.finalized_classification_model\`, (
+SELECT fullVisitorId, predicted_will_buy_on_return_visit FROM ML.PREDICT(MODEL \`ecommerce.finalized_classification_model\`, (
   WITH all_visitor_stats AS (
   SELECT
     fullvisitorid,
@@ -225,6 +225,7 @@ SELECT * FROM ML.PREDICT(MODEL \`ecommerce.finalized_classification_model\`, (
   SELECT * EXCEPT(unique_session_id) FROM (
     SELECT
         CONCAT(fullvisitorid, CAST(visitId AS STRING)) AS unique_session_id,
+        fullVisitorId,
         will_buy_on_return_visit,
         MAX(CAST(h.eCommerceAction.action_type AS INT64)) AS latest_ecommerce_progress,
         IFNULL(totals.bounces, 0) AS bounces,
@@ -243,6 +244,7 @@ SELECT * FROM ML.PREDICT(MODEL \`ecommerce.finalized_classification_model\`, (
       AND date BETWEEN '20170701' AND '20170801'
     GROUP BY
     unique_session_id,
+    fullVisitorId,
     will_buy_on_return_visit,
     bounces,
     time_on_site,
