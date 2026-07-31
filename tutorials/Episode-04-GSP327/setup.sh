@@ -23,10 +23,10 @@ CREATE OR REPLACE TABLE taxirides.${TARGET_TABLE} AS
 SELECT
     (tolls_amount + fare_amount) AS ${TARGET_COLUMN},
     pickup_datetime,
-    pickup_longitude, 
-    pickup_latitude, 
-    dropoff_longitude, 
-    dropoff_latitude,
+    pickup_longitude AS pickuplon, 
+    pickup_latitude AS pickuplat, 
+    dropoff_longitude AS dropofflon, 
+    dropoff_latitude AS dropofflat,
     passenger_count
 FROM
     taxirides.historical_taxi_rides_raw
@@ -52,7 +52,7 @@ bq query --use_legacy_sql=false "
 CREATE OR REPLACE MODEL taxirides.${MODEL_NAME}
 TRANSFORM(
   * EXCEPT(pickup_datetime),
-  ST_Distance(ST_GeogPoint(pickup_longitude, pickup_latitude), ST_GeogPoint(dropoff_longitude, dropoff_latitude)) AS euclidean,
+  ST_Distance(ST_GeogPoint(pickuplon, pickuplat), ST_GeogPoint(dropofflon, dropofflat)) AS euclidean,
   CAST(EXTRACT(DAYOFWEEK FROM pickup_datetime) AS STRING) AS dayofweek,
   CAST(EXTRACT(HOUR FROM pickup_datetime) AS STRING) AS hourofday
 )
