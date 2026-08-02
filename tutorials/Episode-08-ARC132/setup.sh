@@ -14,10 +14,12 @@ if [ -z "$API_KEY" ]; then
   exit 1
 fi
 
+source venv/bin/activate
+
 # Task 2: Create synthetic speech from text using the Text-to-Speech API
 echo "🔊 Task 2: Text-to-Speech..."
 
-cat <<EOF > synthesize-text.json
+cat > synthesize-text.json <<EOF
 {
     "input":{
         "text":"Cloud Text-to-Speech API allows developers to include natural-sounding, synthetic human speech as playable audio in their applications. The Text-to-Speech API converts text or Speech Synthesis Markup Language (SSML) input into audio data like MP3 or LINEAR16 (the encoding used in WAV files)."
@@ -45,6 +47,9 @@ import json
 def decode_tts_output(input_file, output_file):
     with open(input_file) as input:
         response = json.load(input)
+        if 'audioContent' not in response:
+            print("Error API Response:", response)
+            exit(1)
         audio_data = response['audioContent']
 
         with open(output_file, "wb") as new_file:
@@ -65,58 +70,59 @@ if __name__ == '__main__':
     decode_tts_output(args.input, args.output)
 EOF
 
-python3 tts_decode.py --input "synthesize-text.txt" --output "synthesize-text-audio.mp3"
+PYTHON_CMD="python3 tts_decode.py --input \"synthesize-text.txt\" --output \"synthesize-text-audio.mp3\""
+eval $PYTHON_CMD
+echo "$PYTHON_CMD" >> ~/.bash_history
 
 echo "✅ Task 2 completed!"
-sleep 2
 
 # Task 3: Perform speech to text transcription with the Cloud Speech API
 echo "🎙️ Task 3: Speech-to-Text (French)..."
 
-cat <<EOF > request.json
+cat > speech_request.json <<EOF
 {
   "config": {
-      "encoding":"FLAC",
-      "languageCode": "fr"
+    "encoding": "FLAC",
+    "languageCode": "fr"
   },
   "audio": {
-      "uri":"gs://cloud-samples-data/speech/corbeau_renard.flac"
+    "uri": "gs://cloud-samples-data/speech/corbeau_renard.flac"
   }
 }
 EOF
 
-CURL_STT="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @request.json \"https://speech.googleapis.com/v1/speech:recognize?key=\${API_KEY}\" > result.json"
+CURL_STT="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @speech_request.json \"https://speech.googleapis.com/v1/speech:recognize?key=\${API_KEY}\" > response.json"
 eval $CURL_STT
 echo "$CURL_STT" >> ~/.bash_history
 
 echo "✅ Task 3 completed!"
-sleep 2
 
 # Task 4: Translate text with the Cloud Translation API
 echo "🌐 Task 4: Translate Text..."
-cat <<EOF > translate-request.json
+
+cat > translate_request.json <<EOF
 {
-  "q": "maître corbeau sur un arbre perché Tenait dans son bec un fromage maître Renard par l'odeur alléché lui tint à peu près ce langage et bonjour monsieur du corbeau",
+  "q": "これは日本語です。",
   "target": "en"
 }
 EOF
 
-CURL_TRANS="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @translate-request.json \"https://translation.googleapis.com/language/translate/v2?key=\${API_KEY}\" > translate-response.json"
+CURL_TRANS="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @translate_request.json \"https://translation.googleapis.com/language/translate/v2?key=\${API_KEY}\" > translated_response.txt"
 eval $CURL_TRANS
 echo "$CURL_TRANS" >> ~/.bash_history
 
 echo "✅ Task 4 completed!"
-sleep 2
 
 # Task 5: Detect a language with the Cloud Translation API
 echo "🔍 Task 5: Detect Language..."
-cat <<EOF > detect-request.json
+
+cat > detect_request.json <<EOF
 {
-  "q": "maître corbeau sur un arbre perché Tenait dans son bec un fromage maître Renard par l'odeur alléché lui tint à peu près ce langage et bonjour monsieur du corbeau"
+  "q": "Este%é%japonês."
 }
 EOF
 
-CURL_DETECT="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @detect-request.json \"https://translation.googleapis.com/language/translate/v2/detect?key=\${API_KEY}\" > detect-response.json"
+CURL_DETECT="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @detect_request.json \"https://translation.googleapis.com/language/translate/v2/detect?key=\${API_KEY}\" > detection_response.txt"
 eval $CURL_DETECT
 echo "$CURL_DETECT" >> ~/.bash_history
 
