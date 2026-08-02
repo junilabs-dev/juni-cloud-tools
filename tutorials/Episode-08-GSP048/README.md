@@ -9,8 +9,11 @@ This is an automated solution for the Google Cloud Skills Boost lab **GSP048**.
    - Go to **Navigation Menu > APIs & Services > Credentials**.
    - Click **Create Credentials** and select **API Key**.
    - Copy the generated API Key.
-3. Open the **Google Cloud Shell** (the terminal icon in the top right of the console).
-4. Run the following command, making sure to replace `YOUR_API_KEY_HERE` with the key you just copied:
+3. **Connect to the Compute Engine VM:**
+   - Go to **Navigation Menu > Compute Engine > VM instances**.
+   - Find the instance named `linux-instance` and click the **SSH** button next to it.
+   - A new browser window with a terminal will open.
+4. In this new SSH terminal, run the following command, making sure to replace `YOUR_API_KEY_HERE` with the key you just copied:
 
 ```bash
 export API_KEY="YOUR_API_KEY_HERE"

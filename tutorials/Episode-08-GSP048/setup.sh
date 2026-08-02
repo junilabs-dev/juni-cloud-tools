@@ -35,7 +35,10 @@ curl -s -X POST -H "Content-Type: application/json" --data-binary @request.json 
 
 # Small delay to ensure Cloud logs register the API call
 sleep 2
-echo "✅ English transcription complete!"
+echo ""
+echo "✅ English transcription complete! result.json now contains the English results."
+echo "🛑 IMPORTANT: Go to Qwiklabs and click 'Check my progress' for the first THREE tasks NOW."
+read -p "👉 Press [ENTER] only AFTER you get the green checkmarks..."
 
 # Task 4: Speech-to-Text transcription in different languages
 echo "📝 Updating request.json for French transcription..."
