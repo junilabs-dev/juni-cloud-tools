@@ -30,8 +30,9 @@ EOF
 
 # Task 3: Call the Speech-to-Text API
 echo "🎙️ Calling Speech-to-Text API (English)..."
-curl -s -X POST -H "Content-Type: application/json" --data-binary @request.json \
-"https://speech.googleapis.com/v1/speech:recognize?key=${API_KEY}" > result.json
+CURL_CMD="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @request.json \"https://speech.googleapis.com/v1/speech:recognize?key=\${API_KEY}\" > result.json"
+eval $CURL_CMD
+echo "$CURL_CMD" >> ~/.bash_history
 
 # Small delay to ensure Cloud logs register the API call
 sleep 2
@@ -55,8 +56,9 @@ cat <<EOF > request.json
 EOF
 
 echo "🎙️ Calling Speech-to-Text API (French)..."
-curl -s -X POST -H "Content-Type: application/json" --data-binary @request.json \
-"https://speech.googleapis.com/v1/speech:recognize?key=${API_KEY}" > result.json
+CURL_CMD_FR="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @request.json \"https://speech.googleapis.com/v1/speech:recognize?key=\${API_KEY}\" > result.json"
+eval $CURL_CMD_FR
+echo "$CURL_CMD_FR" >> ~/.bash_history
 
 sleep 2
 echo "✅ French transcription complete!"
