@@ -14,7 +14,10 @@ if [ -z "$API_KEY" ]; then
   exit 1
 fi
 
-source venv/bin/activate
+if [ -f "venv/bin/activate" ]; then
+  source venv/bin/activate
+fi
+echo "source venv/bin/activate" >> ~/.bash_history
 
 # Task 2: Create synthetic speech from text using the Text-to-Speech API
 echo "🔊 Task 2: Text-to-Speech..."
