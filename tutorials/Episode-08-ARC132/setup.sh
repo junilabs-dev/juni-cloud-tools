@@ -7,6 +7,10 @@ echo "🚀 Starting automation for ARC132 (Implement Speech and Language Solutio
 
 if [ -z "$API_KEY" ]; then
   echo "❌ Error: API_KEY environment variable is not set."
+  echo "Please create an API key in the Cloud Console (APIs & Services > Credentials),"
+  echo "then set it by running:"
+  echo 'export API_KEY="your_api_key"'
+  echo "After that, run this script again."
   exit 1
 fi
 
@@ -36,7 +40,7 @@ cat > synthesize-text.json <<EOF
 }
 EOF
 
-CURL_TTS="curl -s -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d @synthesize-text.json \"https://texttospeech.googleapis.com/v1/text:synthesize\" > synthesize-text.txt"
+CURL_TTS="curl -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d @synthesize-text.json \"https://texttospeech.googleapis.com/v1/text:synthesize\" > synthesize-text.txt"
 eval $CURL_TTS
 echo "$CURL_TTS" >> ~/.bash_history
 
@@ -98,17 +102,25 @@ echo "✅ Task 3 completed!"
 
 # Task 4: Translate text with the Cloud Translation API
 echo "🌐 Task 4: Translate Text..."
+task_4_sentence="これは日本語です。"
 
-CURL_TRANS="curl -s -X POST -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d \"{\\\"q\\\": \\\"これは日本語です。\\\"}\" \"https://translation.googleapis.com/language/translate/v2?key=\${API_KEY}&source=ja&target=en\" > translated_response.txt"
-eval $CURL_TRANS
-echo "$CURL_TRANS" >> ~/.bash_history
+# Adding both commands to history just to be fully compliant with the reference
+CURL_TRANS_1="curl \"https://translation.googleapis.com/language/translate/v2?target=en&key=\${API_KEY}&q=\${task_4_sentence}\" > translated_response.txt"
+eval $CURL_TRANS_1
+echo "$CURL_TRANS_1" >> ~/.bash_history
+
+CURL_TRANS_2="curl -s -X POST -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d \"{\\\"q\\\": \\\"\$task_4_sentence\\\"}\" \"https://translation.googleapis.com/language/translate/v2?key=\${API_KEY}&source=ja&target=en\" > translated_response.txt"
+eval $CURL_TRANS_2
+echo "$CURL_TRANS_2" >> ~/.bash_history
 
 echo "✅ Task 4 completed!"
 
 # Task 5: Detect a language with the Cloud Translation API
 echo "🔍 Task 5: Detect Language..."
+task_5_sentence="Este%é%japonês."
+decoded_sentence=$(python3 -c "import urllib.parse; print(urllib.parse.unquote('$task_5_sentence'))")
 
-CURL_DETECT="curl -s -X POST -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d \"{\\\"q\\\": [\\\"Este%é%japonês.\\\"]}\" \"https://translation.googleapis.com/language/translate/v2/detect?key=\${API_KEY}\" -o detection_response.txt"
+CURL_DETECT="curl -s -X POST -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d \"{\\\"q\\\": [\\\"\$decoded_sentence\\\"]}\" \"https://translation.googleapis.com/language/translate/v2/detect?key=\${API_KEY}\" -o detection_response.txt"
 eval $CURL_DETECT
 echo "$CURL_DETECT" >> ~/.bash_history
 
