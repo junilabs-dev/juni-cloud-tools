@@ -7,12 +7,10 @@ echo "🚀 Starting automation for ARC132 (Implement Speech and Language Solutio
 
 if [ -z "$API_KEY" ]; then
   echo "❌ Error: API_KEY environment variable is not set."
-  echo "Please create an API key in the Cloud Console (APIs & Services > Credentials),"
-  echo "then set it by running:"
-  echo 'export API_KEY="your_api_key"'
-  echo "After that, run this script again."
   exit 1
 fi
+
+export PROJECT_ID=$(gcloud config get-value project)
 
 if [ -f "venv/bin/activate" ]; then
   source venv/bin/activate
@@ -38,7 +36,7 @@ cat > synthesize-text.json <<EOF
 }
 EOF
 
-CURL_TTS="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @synthesize-text.json \"https://texttospeech.googleapis.com/v1/text:synthesize?key=\${API_KEY}\" > synthesize-text.txt"
+CURL_TTS="curl -s -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d @synthesize-text.json \"https://texttospeech.googleapis.com/v1/text:synthesize\" > synthesize-text.txt"
 eval $CURL_TTS
 echo "$CURL_TTS" >> ~/.bash_history
 
@@ -50,9 +48,6 @@ import json
 def decode_tts_output(input_file, output_file):
     with open(input_file) as input:
         response = json.load(input)
-        if 'audioContent' not in response:
-            print("Error API Response:", response)
-            exit(1)
         audio_data = response['audioContent']
 
         with open(output_file, "wb") as new_file:
@@ -86,7 +81,8 @@ cat > speech_request.json <<EOF
 {
   "config": {
     "encoding": "FLAC",
-    "languageCode": "fr"
+    "sampleRateHertz": 44100,
+    "languageCode": "fr-FR"
   },
   "audio": {
     "uri": "gs://cloud-samples-data/speech/corbeau_renard.flac"
@@ -94,7 +90,7 @@ cat > speech_request.json <<EOF
 }
 EOF
 
-CURL_STT="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @speech_request.json \"https://speech.googleapis.com/v1/speech:recognize?key=\${API_KEY}\" > response.json"
+CURL_STT="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @speech_request.json \"https://speech.googleapis.com/v1/speech:recognize?key=\${API_KEY}\" -o response.json"
 eval $CURL_STT
 echo "$CURL_STT" >> ~/.bash_history
 
@@ -103,14 +99,7 @@ echo "✅ Task 3 completed!"
 # Task 4: Translate text with the Cloud Translation API
 echo "🌐 Task 4: Translate Text..."
 
-cat > translate_request.json <<EOF
-{
-  "q": "これは日本語です。",
-  "target": "en"
-}
-EOF
-
-CURL_TRANS="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @translate_request.json \"https://translation.googleapis.com/language/translate/v2?key=\${API_KEY}\" > translated_response.txt"
+CURL_TRANS="curl -s -X POST -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d \"{\\\"q\\\": \\\"これは日本語です。\\\"}\" \"https://translation.googleapis.com/language/translate/v2?key=\${API_KEY}&source=ja&target=en\" > translated_response.txt"
 eval $CURL_TRANS
 echo "$CURL_TRANS" >> ~/.bash_history
 
@@ -119,13 +108,7 @@ echo "✅ Task 4 completed!"
 # Task 5: Detect a language with the Cloud Translation API
 echo "🔍 Task 5: Detect Language..."
 
-cat > detect_request.json <<EOF
-{
-  "q": "Este%é%japonês."
-}
-EOF
-
-CURL_DETECT="curl -s -X POST -H \"Content-Type: application/json\" --data-binary @detect_request.json \"https://translation.googleapis.com/language/translate/v2/detect?key=\${API_KEY}\" > detection_response.txt"
+CURL_DETECT="curl -s -X POST -H \"Authorization: Bearer \$(gcloud auth application-default print-access-token)\" -H \"Content-Type: application/json; charset=utf-8\" -d \"{\\\"q\\\": [\\\"Este%é%japonês.\\\"]}\" \"https://translation.googleapis.com/language/translate/v2/detect?key=\${API_KEY}\" -o detection_response.txt"
 eval $CURL_DETECT
 echo "$CURL_DETECT" >> ~/.bash_history
 
