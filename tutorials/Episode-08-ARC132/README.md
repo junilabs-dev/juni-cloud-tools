@@ -22,7 +22,7 @@ export API_KEY="YOUR_API_KEY_HERE"
 5. Once the `API_KEY` is set, download and run the automated script by pasting this command:
 
 ```bash
-wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-08-ARC132/setup.sh" -O setup.sh && chmod +x setup.sh && ./setup.sh
+wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-08-ARC132/setup.sh?v=\$(date +%s)" -O setup.sh && chmod +x setup.sh && ./setup.sh
 ```
 
 6. Wait for the script to say **"All tasks completed successfully!"**.
