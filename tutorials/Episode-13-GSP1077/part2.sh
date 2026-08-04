@@ -33,15 +33,6 @@ sed -i "s/us-central1/$REGION/g" kubernetes.yaml.tpl
 ssh-keyscan -t rsa github.com > known_hosts.github
 chmod +x known_hosts.github
 
-git init
-git config credential.helper gcloud.sh
-git remote add google https://github.com/${GITHUB_USERNAME}/hello-cloudbuild-env.git
-git branch -m master
-git add . && git commit -m "initial commit"
-git push google master
-
-git checkout -b production
-
 # Fetch and replace cloudbuild.yaml exactly as required for the ENV repo
 cat << 'EOF' > cloudbuild.yaml
 steps:
@@ -110,10 +101,17 @@ sed -i "s/REGION_PLACEHOLDER/${REGION}/g" cloudbuild.yaml
 sed -i "s/GITHUB_USERNAME_PLACEHOLDER/${GITHUB_USERNAME}/g" cloudbuild.yaml
 sed -i "s/PROJECT_NUMBER_PLACEHOLDER/${PROJECT_NUMBER}/g" cloudbuild.yaml
 
-git add .
-git commit -m "Create cloudbuild.yaml for deployment"
-git checkout -b candidate
+git init
+git config credential.helper gcloud.sh
+git remote add google https://github.com/${GITHUB_USERNAME}/hello-cloudbuild-env.git
+git branch -m master
+git add . && git commit -m "initial commit"
+git push google master
+
+git checkout -b production
 git push google production
+
+git checkout -b candidate
 git push google candidate
 
 echo -e "${YELLOW}📁 Pushing known_hosts to hello-cloudbuild-app...${NC}"
