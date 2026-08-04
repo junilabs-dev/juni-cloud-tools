@@ -53,8 +53,8 @@ gh repo create hello-cloudbuild-env --private || true
 
 cd ~
 rm -rf hello-cloudbuild-app hello-cloudbuild-env
-mkdir hello-cloudbuild-app
-gcloud storage cp -r gs://spls/gsp1077/gke-gitops-tutorial-cloudbuild/* hello-cloudbuild-app/
+git clone https://github.com/GoogleCloudPlatform/gke-gitops-tutorial-cloudbuild.git hello-cloudbuild-app
+rm -rf hello-cloudbuild-app/.git
 
 cd ~/hello-cloudbuild-app
 sed -i "s/us-central1/$REGION/g" cloudbuild.yaml

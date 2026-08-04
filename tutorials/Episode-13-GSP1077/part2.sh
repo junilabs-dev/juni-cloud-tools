@@ -20,8 +20,9 @@ gcloud projects add-iam-policy-binding ${PROJECT_NUMBER} \
 
 echo -e "${YELLOW}📁 Setting up hello-cloudbuild-env repository...${NC}"
 cd ~
-mkdir hello-cloudbuild-env
-gcloud storage cp -r gs://spls/gsp1077/gke-gitops-tutorial-cloudbuild/* hello-cloudbuild-env/
+rm -rf hello-cloudbuild-env
+git clone https://github.com/GoogleCloudPlatform/gke-gitops-tutorial-cloudbuild.git hello-cloudbuild-env
+rm -rf hello-cloudbuild-env/.git
 
 cd hello-cloudbuild-env
 sed -i "s/us-central1/$REGION/g" cloudbuild.yaml
