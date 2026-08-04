@@ -1,21 +1,7 @@
 #!/bin/bash
-
-# Color variables
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-
-echo -e "${CYAN}"
-echo "      _ _    _ _   _ _____   _          _    ____   _____ "
-echo "     | | |  | | \ | |_   _| | |        / \  |  _ \ / ____|"
-echo "     | | |  | |  \| | | |   | |       / _ \ | |_) | (___  "
-echo " _   | | |  | | . \` | | |   | |      / ___ \|  _ < \___ \ "
-echo "| |__| | |__| | |\  |_| |_  | |____ / /   \ \ |_) |____) |"
-echo " \____/ \____/|_| \_|_____| |______/_/     \_\____/|_____/ "
-echo -e "${NC}"
-echo -e "${YELLOW}🚀 Starting GSP1077 (Google Kubernetes Engine Pipeline using Cloud Build) - PART 1...${NC}"
+source ../../bash/utils.sh
+print_banner
+print_info "Starting GSP1077 (Google Kubernetes Engine Pipeline using Cloud Build) - PART 1..."
 
 export PROJECT_ID=$(gcloud config get-value project)
 export PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')

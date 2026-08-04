@@ -1,12 +1,7 @@
 #!/bin/bash
-
-# Color variables
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-NC='\033[0m' # No Color
-
-echo -e "${YELLOW}🚀 Starting automation for GSP1131 (Artifact Registry: Qwik Start)...${NC}"
+source ../../bash/utils.sh
+print_banner
+print_info "Starting automation for GSP1131 (Artifact Registry: Qwik Start)..."
 
 # 1. Set Project ID
 export PROJECT_ID=$(gcloud config get-value project)

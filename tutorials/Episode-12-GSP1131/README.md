@@ -10,7 +10,12 @@ This lab is completely CLI-based, which means we can fully automate it using a s
 4. Run the following command in the Cloud Shell:
 
 ```bash
-wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-12-GSP1131/setup.sh?v=\$(date +%s)" -O setup.sh && chmod +x setup.sh && ./setup.sh
+cd ~
+rm -rf juni-cloud-tools
+git clone https://github.com/junilabs-dev/juni-cloud-tools.git
+cd juni-cloud-tools/tutorials/Episode-12-GSP1131
+chmod +x setup.sh
+./setup.sh
 ```
 
 5. Wait for the script to finish. It will automatically detect your region, create the Docker repository, configure authentication, and handle pulling, tagging, and pushing the sample image.

@@ -11,7 +11,12 @@ However, to make this as easy as possible, I have split the automation into 3 sc
 Open the **Google Cloud Shell** in your Qwiklabs environment and run:
 
 ```bash
-wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-13-GSP1077/part1.sh" -O part1.sh && chmod +x part1.sh && ./part1.sh
+cd ~
+rm -rf juni-cloud-tools
+git clone https://github.com/junilabs-dev/juni-cloud-tools.git
+cd juni-cloud-tools/tutorials/Episode-13-GSP1077
+chmod +x part1.sh part2.sh part3.sh
+./part1.sh
 ```
 
 **⚠️ Important:** During this script, you will be prompted to login to GitHub via the CLI. 
@@ -56,7 +61,7 @@ After `part1.sh` finishes, you must do two things manually:
 Back in your Google Cloud Shell, run:
 
 ```bash
-wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-13-GSP1077/part2.sh" -O part2.sh && chmod +x part2.sh && ./part2.sh
+./part2.sh
 ```
 
 ---
@@ -81,7 +86,7 @@ wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutor
 Run the final script in the Cloud Shell:
 
 ```bash
-wget "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-13-GSP1077/part3.sh" -O part3.sh && chmod +x part3.sh && ./part3.sh
+./part3.sh
 ```
 
 This will trigger your entire end-to-end CI/CD pipeline! Wait a few minutes for the Cloud Build history to show the builds completing successfully.
