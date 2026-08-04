@@ -52,7 +52,7 @@ steps:
   - '-f'
   - 'kubernetes.yaml'
   env:
-  - 'CLOUDSDK_COMPUTE_REGION='
+  - 'CLOUDSDK_COMPUTE_REGION=REGION_PLACEHOLDER'
   - 'CLOUDSDK_CONTAINER_CLUSTER=hello-cloudbuild'
 
 - name: 'gcr.io/cloud-builders/git'
@@ -106,6 +106,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
 EOF
 
+sed -i "s/REGION_PLACEHOLDER/${REGION}/g" cloudbuild.yaml
 sed -i "s/GITHUB_USERNAME_PLACEHOLDER/${GITHUB_USERNAME}/g" cloudbuild.yaml
 sed -i "s/PROJECT_NUMBER_PLACEHOLDER/${PROJECT_NUMBER}/g" cloudbuild.yaml
 
