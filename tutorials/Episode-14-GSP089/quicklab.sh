@@ -10,7 +10,7 @@ export PROJECT_ID=$(gcloud config get-value project)
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])" 2>/dev/null)
 
 if [ -z "$ZONE" ]; then
-    print_error "Could not automatically detect the zone."
+    error "Could not automatically detect the zone."
     read -p "Please enter the ZONE from your Qwiklabs panel (e.g. us-east1-b): " ZONE
 fi
 
@@ -42,7 +42,7 @@ gcloud compute firewall-rules create default-allow-http \
     --source-ranges=0.0.0.0/0 \
     --target-tags=http-server || true
 
-print_success "🎉 VM Setup Complete!"
+success "🎉 VM Setup Complete!"
 print_info "========================================================================"
 print_info "Please wait 2-3 minutes for the startup script to finish installing agents."
 print_info "Then, go to the UI to complete the Uptime Check, Alerting Policy, and Dashboard!"
