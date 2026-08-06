@@ -1,9 +1,8 @@
-YELLOW='\033[1;33m'
-GREEN='\033[1;32m'
-CYAN='\033[1;36m'
-NC='\033[0m'
-
-echo -e "${CYAN}Starting GSP089 - Cloud Monitoring: Qwik Start...${NC}"
+#!/bin/bash
+curl -sL https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/bash/utils.sh -o utils.sh
+source utils.sh
+print_banner
+print_info "Starting GSP089 - Cloud Monitoring: Qwik Start..."
 
 export PROJECT_ID=$(gcloud config get-value project)
 
@@ -11,13 +10,13 @@ export PROJECT_ID=$(gcloud config get-value project)
 ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])" 2>/dev/null)
 
 if [ -z "$ZONE" ]; then
-    echo -e "${YELLOW}Could not automatically detect the zone.${NC}"
+    print_error "Could not automatically detect the zone."
     read -p "Please enter the ZONE from your Qwiklabs panel (e.g. us-east1-b): " ZONE
 fi
 
-echo -e "${YELLOW}Using ZONE: $ZONE${NC}"
+print_info "Using ZONE: $ZONE"
 
-echo -e "${YELLOW}🚀 Creating VM instance 'lamp-1-vm' with Apache and Ops Agents...${NC}"
+print_info "🚀 Creating VM instance 'lamp-1-vm' with Apache and Ops Agents..."
 gcloud compute instances create lamp-1-vm \
     --project=$PROJECT_ID \
     --zone=$ZONE \
@@ -33,7 +32,7 @@ curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
 bash add-google-cloud-ops-agent-repo.sh --also-install
 '
 
-echo -e "${YELLOW}🔥 Adding Firewall Rule for HTTP...${NC}"
+print_info "🔥 Adding Firewall Rule for HTTP..."
 gcloud compute firewall-rules create default-allow-http \
     --direction=INGRESS \
     --priority=1000 \
@@ -43,7 +42,7 @@ gcloud compute firewall-rules create default-allow-http \
     --source-ranges=0.0.0.0/0 \
     --target-tags=http-server || true
 
-echo -e "${GREEN}🎉 VM Setup Complete!${NC}"
-echo -e "${CYAN}========================================================================${NC}"
-echo -e "${YELLOW}Please wait 2-3 minutes for the startup script to finish installing agents.${NC}"
-echo -e "${YELLOW}Then, go to the UI to complete the Uptime Check, Alerting Policy, and Dashboard!${NC}"
+print_success "🎉 VM Setup Complete!"
+print_info "========================================================================"
+print_info "Please wait 2-3 minutes for the startup script to finish installing agents."
+print_info "Then, go to the UI to complete the Uptime Check, Alerting Policy, and Dashboard!"
