@@ -1,11 +1,21 @@
-#!/bin/bash
-source ../../bash/utils.sh
-print_banner
-print_info "Starting GSP089 - Cloud Monitoring: Qwik Start..."
+YELLOW='\033[1;33m'
+GREEN='\033[1;32m'
+CYAN='\033[1;36m'
+NC='\033[0m'
+
+echo -e "${CYAN}Starting GSP089 - Cloud Monitoring: Qwik Start...${NC}"
 
 export PROJECT_ID=$(gcloud config get-value project)
-export REGION=$(gcloud config get compute/region)
-export ZONE=$(gcloud config get compute/zone)
+
+# Try to get zone from project metadata (Qwiklabs often sets this)
+ZONE=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-zone])" 2>/dev/null)
+
+if [ -z "$ZONE" ]; then
+    echo -e "${YELLOW}Could not automatically detect the zone.${NC}"
+    read -p "Please enter the ZONE from your Qwiklabs panel (e.g. us-east1-b): " ZONE
+fi
+
+echo -e "${YELLOW}Using ZONE: $ZONE${NC}"
 
 echo -e "${YELLOW}🚀 Creating VM instance 'lamp-1-vm' with Apache and Ops Agents...${NC}"
 gcloud compute instances create lamp-1-vm \
