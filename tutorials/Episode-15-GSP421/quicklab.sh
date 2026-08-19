@@ -25,6 +25,12 @@ gsutil cp demo-image2.png gs://$BUCKET_1/
 print_info "📋 Task 4: Copying file from Bucket 1 to Bucket 2..."
 gsutil cp gs://$BUCKET_1/demo-image1.png gs://$BUCKET_2/demo-image1-copy.png
 
+print_info "====================================================="
+print_info "🛑 STOP HERE! Go to Qwiklabs and click 'Check my progress'"
+print_info "for the first 4 tasks. Ensure you get 75/100 points."
+print_info "====================================================="
+read -p "Press [Enter] after you have verified the points to continue..."
+
 print_info "🗑️ Task 5: Deleting files from the first bucket..."
 gsutil rm gs://$BUCKET_1/demo-image1.png
 gsutil rm gs://$BUCKET_1/demo-image2.png
