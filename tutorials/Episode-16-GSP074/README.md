@@ -10,9 +10,9 @@ Watch the full step-by-step tutorial on YouTube: [Juni Labs](https://youtube.com
 Run the following command in your Cloud Shell to fully automate the lab and get 100/100 points instantly!
 
 ```bash
-curl -H 'Cache-Control: no-cache, no-store' -sL "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-16-GSP074/quicklab.sh?v=$(date +%s)" -o quicklab.sh
-sudo chmod +x quicklab.sh
-./quicklab.sh
+curl -sL "https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-16-GSP074/quicklab-v2.sh" -o quicklab-v2.sh
+sudo chmod +x quicklab-v2.sh
+./quicklab-v2.sh
 ```
 
 ## 📝 What this script does:
