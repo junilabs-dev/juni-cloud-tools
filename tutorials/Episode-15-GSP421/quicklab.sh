@@ -9,10 +9,10 @@ BUCKET_1="${PROJECT_ID}-bucket01"
 BUCKET_2="${PROJECT_ID}-bucket02"
 
 print_info "🚀 Task 1: Creating first Cloud Storage bucket ($BUCKET_1)..."
-gsutil mb gs://$BUCKET_1/
+gsutil mb -l US gs://$BUCKET_1/
 
 print_info "🚀 Task 2: Creating second Cloud Storage bucket ($BUCKET_2)..."
-gsutil mb gs://$BUCKET_2/
+gsutil mb -l US gs://$BUCKET_2/
 
 print_info "🖼️ Task 3: Uploading files to the first bucket..."
 # Downloading dummy images
