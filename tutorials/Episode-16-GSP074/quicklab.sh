@@ -5,12 +5,18 @@ print_banner
 print_info "Starting GSP074 - Cloud Storage: Qwik Start - CLI/SDK..."
 
 export PROJECT_ID=$(gcloud config get-value project)
+# Try to get region from config, then from project metadata
 export REGION=$(gcloud config get compute/region 2>/dev/null)
+if [ -z "$REGION" ]; then
+    REGION=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-region])" 2>/dev/null)
+fi
 
 if [ -z "$REGION" ]; then
-    # Fallback to us-central1 if region is not set in config
-    REGION="us-central1"
+    error "Could not automatically detect the region."
+    read -p "Please enter the REGION from your Qwiklabs panel (e.g. us-east1): " REGION
 fi
+
+print_info "Using REGION: $REGION"
 
 BUCKET_NAME="${PROJECT_ID}-bucket"
 
