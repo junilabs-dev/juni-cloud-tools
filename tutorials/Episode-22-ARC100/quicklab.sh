@@ -27,11 +27,20 @@ if [ -z "$BUCKET_NAME" ] || [ -z "$TOPIC_NAME" ] || [ -z "$FUNCTION_NAME" ]; the
     exit 1
 fi
 
+print_info "🚀 Enabling required APIs..."
+gcloud services enable \
+  run.googleapis.com \
+  eventarc.googleapis.com \
+  cloudfunctions.googleapis.com \
+  cloudbuild.googleapis.com \
+  artifactregistry.googleapis.com \
+  pubsub.googleapis.com
+
 print_info "🚀 Task 1: Creating Bucket ($BUCKET_NAME)..."
-gcloud storage buckets create gs://$BUCKET_NAME --location=$REGION
+gcloud storage buckets create gs://$BUCKET_NAME --location=$REGION || true
 
 print_info "🚀 Task 2: Creating Pub/Sub topic ($TOPIC_NAME)..."
-gcloud pubsub topics create $TOPIC_NAME
+gcloud pubsub topics create $TOPIC_NAME || true
 
 print_info "🚀 Task 3: Creating the thumbnail Cloud Run function..."
 mkdir -p thumbnail_function
@@ -132,17 +141,20 @@ PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNum
 STORAGE_SA=$(gsutil kms serviceaccount -p $PROJECT_NUMBER)
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:$STORAGE_SA" \
-  --role="roles/pubsub.publisher"
+  --role="roles/pubsub.publisher" || true
 
 # Grant Eventarc Event Receiver to default compute service account
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
-  --role="roles/eventarc.eventReceiver"
+  --role="roles/eventarc.eventReceiver" || true
 
 # Grant Service Account Token Creator to Pub/Sub Service Agent
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com" \
-  --role="roles/iam.serviceAccountTokenCreator"
+  --role="roles/iam.serviceAccountTokenCreator" || true
+
+# Wait a few seconds for permissions to propagate
+sleep 5
 
 print_info "Deploying Cloud Run function (This takes about 2 minutes)..."
 gcloud functions deploy $FUNCTION_NAME \
