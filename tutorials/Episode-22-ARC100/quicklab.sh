@@ -137,6 +137,9 @@ npm install
 print_info "Setting up IAM permissions for Eventarc..."
 PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
 
+gcloud beta services identity create --service=pubsub.googleapis.com --project=$PROJECT_ID || true
+gcloud beta services identity create --service=eventarc.googleapis.com --project=$PROJECT_ID || true
+
 # Grant Pub/Sub Publisher role to Cloud Storage service account
 STORAGE_SA=$(gsutil kms serviceaccount -p $PROJECT_NUMBER)
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -153,8 +156,13 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com" \
   --role="roles/iam.serviceAccountTokenCreator" || true
 
-# Wait a few seconds for permissions to propagate
-sleep 5
+# Grant Eventarc Service Agent role to Eventarc Service Agent
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-eventarc.iam.gserviceaccount.com" \
+  --role="roles/eventarc.serviceAgent" || true
+
+print_info "Waiting 30 seconds for IAM permissions to fully propagate across Google Cloud..."
+sleep 30
 
 print_info "Deploying Cloud Run function (This takes about 2 minutes)..."
 gcloud functions deploy $FUNCTION_NAME \
