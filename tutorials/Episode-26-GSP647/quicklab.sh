@@ -26,9 +26,11 @@ print_info "✅ User 2: $USER_2"
 print_info "🚀 Running local configuration checks on centos-clean via SSH..."
 CENTOS_ZONE=$(gcloud compute instances list --filter="name=centos-clean" --format="value(zone)" --project=$PROJECT_ID_1)
 if [ ! -z "$CENTOS_ZONE" ]; then
+    TOKEN=$(gcloud auth print-access-token)
     gcloud compute ssh centos-clean --zone=$CENTOS_ZONE --project=$PROJECT_ID_1 --tunnel-through-iap --quiet --command="
         echo 'export PROJECTID2=$PROJECT_ID_2' >> ~/.bashrc
         echo 'export USERID2=$USER_2' >> ~/.bashrc
+        echo 'export CLOUDSDK_AUTH_ACCESS_TOKEN=$TOKEN' >> ~/.bashrc
         gcloud config set compute/region europe-west1 --quiet
         gcloud config set compute/zone europe-west1-c --quiet
         gcloud config configurations create user2 --quiet || true
