@@ -5,6 +5,11 @@ print_banner
 print_info "Starting GSP1317 - Establish VPC to VPC Connectivity using NCC..."
 
 export PROJECT_ID=$(gcloud config get-value project)
+if [ -z "$PROJECT_ID" ]; then
+    error "PROJECT_ID is not set in Cloud Shell."
+    read -p "Please enter your Qwiklabs PROJECT_ID: " PROJECT_ID
+    gcloud config set project $PROJECT_ID
+fi
 export REGION=us-east4
 export ZONE=us-east4-b
 
