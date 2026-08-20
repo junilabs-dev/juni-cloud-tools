@@ -18,14 +18,28 @@ print_info "✅ Secondary User (Security Lead): $USER_2"
 # Task 1: Enable PAM API & Service Agent Role
 print_info "🚀 Task 1: Enabling Privileged Access Manager..."
 gcloud services enable privilegedaccessmanager.googleapis.com
+
+print_info "🚀 Provisioning PAM Service Agent..."
+gcloud beta services identity create --service=privilegedaccessmanager.googleapis.com --project=$PROJECT_ID || true
+
 PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+print_info "🚀 Granting PAM Service Agent role on Project level..."
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pam.iam.gserviceaccount.com" \
     --role="roles/privilegedaccessmanager.serviceAgent" \
     --quiet || true
 
-print_info "⏳ Waiting 15 seconds for PAM service agent propagation..."
-sleep 15
+ORG_ID=$(gcloud projects get-ancestors $PROJECT_ID --format="json" | grep -A1 '"type": "organization"' | grep '"id"' | grep -o '[0-9]\+')
+if [ ! -z "$ORG_ID" ]; then
+    print_info "🚀 Granting PAM Service Agent role on Org level..."
+    gcloud projects add-iam-policy-binding $PROJECT_ID \
+        --member="serviceAccount:service-org-${ORG_ID}@gcp-sa-pam.iam.gserviceaccount.com" \
+        --role="roles/privilegedaccessmanager.serviceAgent" \
+        --quiet || true
+fi
+
+print_info "⏳ Waiting 20 seconds for PAM service agent propagation..."
+sleep 20
 
 # Task 2: Create the entitlement
 print_info "🚀 Task 2: Creating the entitlement..."
