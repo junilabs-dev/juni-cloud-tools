@@ -88,5 +88,40 @@ if [ ! -z "$VPC_ONPREM_1" ]; then
         --global --quiet || true
 fi
 
+print_info "🚀 Task 4: Testing Connectivity (Ping Tests)"
+print_info "Discovering VMs to run ping tests (This is required for Qwiklabs scoring)..."
+VMS=$(gcloud compute instances list --format="value(name,zone,networkInterfaces[0].networkIP)")
+
+# Test Task 1: Connect 2 On-prem VPCs (Ping between office-1 and office-2)
+VM_OFFICE_1=$(echo "$VMS" | grep -i "office-1" | head -n 1)
+VM_OFFICE_2=$(echo "$VMS" | grep -i "office-2" | head -n 1)
+if [ ! -z "$VM_OFFICE_1" ] && [ ! -z "$VM_OFFICE_2" ]; then
+    VM1_NAME=$(echo "$VM_OFFICE_1" | awk '{print $1}')
+    VM1_ZONE=$(echo "$VM_OFFICE_1" | awk '{print $2}')
+    VM2_IP=$(echo "$VM_OFFICE_2" | awk '{print $3}')
+    print_info "Pinging Office 2 ($VM2_IP) from Office 1 ($VM1_NAME)..."
+    gcloud compute ssh $VM1_NAME --zone=$VM1_ZONE --tunnel-through-iap --quiet --command="ping -c 5 $VM2_IP" || true
+fi
+
+# Test Task 2: Connect VPC to VPC (Ping between workload-1 and workload-2)
+VM_WORKLOAD_1=$(echo "$VMS" | grep -i "workload-1" | head -n 1)
+VM_WORKLOAD_2=$(echo "$VMS" | grep -i "workload-2" | head -n 1)
+if [ ! -z "$VM_WORKLOAD_1" ] && [ ! -z "$VM_WORKLOAD_2" ]; then
+    VM1_NAME=$(echo "$VM_WORKLOAD_1" | awk '{print $1}')
+    VM1_ZONE=$(echo "$VM_WORKLOAD_1" | awk '{print $2}')
+    VM2_IP=$(echo "$VM_WORKLOAD_2" | awk '{print $3}')
+    print_info "Pinging Workload 2 ($VM2_IP) from Workload 1 ($VM1_NAME)..."
+    gcloud compute ssh $VM1_NAME --zone=$VM1_ZONE --tunnel-through-iap --quiet --command="ping -c 5 $VM2_IP" || true
+fi
+
+# Test Task 3: Connect VPC to On-prem (Ping between workload-1 and office-1)
+if [ ! -z "$VM_WORKLOAD_1" ] && [ ! -z "$VM_OFFICE_1" ]; then
+    VM1_NAME=$(echo "$VM_WORKLOAD_1" | awk '{print $1}')
+    VM1_ZONE=$(echo "$VM_WORKLOAD_1" | awk '{print $2}')
+    VM2_IP=$(echo "$VM_OFFICE_1" | awk '{print $3}')
+    print_info "Pinging Office 1 ($VM2_IP) from Workload 1 ($VM1_NAME)..."
+    gcloud compute ssh $VM1_NAME --zone=$VM1_ZONE --tunnel-through-iap --quiet --command="ping -c 5 $VM2_IP" || true
+fi
+
 success "🎉 Lab GSP528 Setup Complete!"
 print_info "Go back to Qwiklabs and click all the 'Check my progress' buttons to get 100/100 points!"
