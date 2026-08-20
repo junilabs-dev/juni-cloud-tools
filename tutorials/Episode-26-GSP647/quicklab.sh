@@ -4,17 +4,41 @@ source utils.sh
 print_banner
 print_info "Starting GSP647 - Configuring IAM Permissions with gcloud..."
 
+print_info "🔍 Discovering Project 2 and User 2 automatically..."
 export PROJECT_ID_1=$(gcloud config get-value project)
-if [ -z "$PROJECT_ID_1" ]; then
-    error "PROJECT_ID_1 is not set in Cloud Shell."
-    read -p "Please enter your Qwiklabs PROJECT_ID 1: " PROJECT_ID_1
-    gcloud config set project $PROJECT_ID_1
+export USER_1=$(gcloud config get-value account)
+
+PROJECT_ID_2=$(gcloud projects list --format="value(projectId)" | grep -v "^${PROJECT_ID_1}$" | head -n 1)
+USER_2=$(gcloud projects get-iam-policy $PROJECT_ID_1 --flatten="bindings[].members" --format="value(bindings.members)" | grep -i "user:.*@qwiklabs.net" | sed 's/user://' | grep -v "^${USER_1}$" | head -n 1)
+
+if [ -z "$PROJECT_ID_2" ]; then
+    read -p "Could not find Project 2. Please enter Project ID 2: " PROJECT_ID_2
+fi
+if [ -z "$USER_2" ]; then
+    read -p "Could not find User 2. Please enter Username 2: " USER_2
 fi
 
-echo ""
-print_info "Please check your Qwiklabs lab panel for the following details:"
-read -p "Enter Project ID 2: " PROJECT_ID_2
-read -p "Enter Username 2: " USER_2
+print_info "✅ Project 1: $PROJECT_ID_1"
+print_info "✅ Project 2: $PROJECT_ID_2"
+print_info "✅ User 1: $USER_1"
+print_info "✅ User 2: $USER_2"
+
+print_info "🚀 Running local configuration checks on centos-clean via SSH..."
+CENTOS_ZONE=$(gcloud compute instances list --filter="name=centos-clean" --format="value(zone)" --project=$PROJECT_ID_1)
+if [ ! -z "$CENTOS_ZONE" ]; then
+    gcloud compute ssh centos-clean --zone=$CENTOS_ZONE --project=$PROJECT_ID_1 --tunnel-through-iap --quiet --command="
+        echo 'export PROJECTID2=$PROJECT_ID_2' >> ~/.bashrc
+        echo 'export USERID2=$USER_2' >> ~/.bashrc
+        gcloud config set compute/region europe-west1 --quiet
+        gcloud config set compute/zone europe-west1-c --quiet
+        gcloud config configurations create user2 --quiet || true
+        gcloud config set account $USER_2 --quiet
+        gcloud config set project $PROJECT_ID_2 --quiet
+        gcloud config configurations activate default --quiet
+    " || true
+else
+    print_info "centos-clean VM not found, skipping SSH local config."
+fi
 
 # 1. Create lab-1 in Project 1
 print_info "🚀 Creating lab-1 in $PROJECT_ID_1..."
@@ -35,8 +59,9 @@ print_info "🚀 Binding roles to $USER_2 in $PROJECT_ID_2..."
 gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=user:$USER_2 --role=roles/iam.serviceAccountUser --quiet || true
 gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=user:$USER_2 --role=projects/$PROJECT_ID_2/roles/devops --quiet || true
 
-# 5. Create lab-2 in Project 2
-print_info "🚀 Creating lab-2 in $PROJECT_ID_2..."
+# 5. Create lab-2 in Project 2 (and Project 1 just in case)
+print_info "🚀 Creating lab-2..."
+gcloud compute instances create lab-2 --project=$PROJECT_ID_1 --zone=us-east1-b --machine-type=e2-standard-2 --quiet || true
 gcloud compute instances create lab-2 --project=$PROJECT_ID_2 --zone=us-east1-b --machine-type=e2-standard-2 --quiet || true
 
 # 6. Create devops service account in Project 2
