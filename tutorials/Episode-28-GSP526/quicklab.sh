@@ -76,11 +76,17 @@ gcloud pam entitlements create pam-entitlement \
 
 # Task 3: Update the entitlement
 print_info "🚀 Task 3: Updating the entitlement..."
-sed -i 's/36000s/14400s/' entitlement.yaml
+gcloud pam entitlements describe pam-entitlement \
+    --project=$PROJECT_ID \
+    --location=global \
+    --format="yaml" > current_entitlement.yaml
+
+sed -i 's/36000s/14400s/' current_entitlement.yaml
+
 gcloud pam entitlements update pam-entitlement \
     --project=$PROJECT_ID \
     --location=global \
-    --entitlement-file=entitlement.yaml \
+    --entitlement-file=current_entitlement.yaml \
     --quiet || true
 
 # Task 4: Request temporary elevated access
