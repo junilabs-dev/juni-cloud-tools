@@ -29,13 +29,15 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --role="roles/privilegedaccessmanager.serviceAgent" \
     --quiet || true
 
-ORG_ID=$(gcloud projects get-ancestors $PROJECT_ID | grep organization | awk '{print $1}')
-if [ ! -z "$ORG_ID" ]; then
+ORG_ID=$(gcloud projects get-ancestors $PROJECT_ID --format="csv(id,type)" | grep organization | cut -d',' -f1)
+if [[ "$ORG_ID" =~ ^[0-9]+$ ]]; then
     print_info "🚀 Granting PAM Service Agent role on Org level ($ORG_ID)..."
     gcloud projects add-iam-policy-binding $PROJECT_ID \
         --member="serviceAccount:service-org-${ORG_ID}@gcp-sa-pam.iam.gserviceaccount.com" \
         --role="roles/privilegedaccessmanager.serviceAgent" \
         --quiet || true
+else
+    print_info "⚠️ Could not extract valid Org ID. Skipping org-level binding."
 fi
 
 print_info "⏳ Waiting 45 seconds for PAM service agent propagation..."
