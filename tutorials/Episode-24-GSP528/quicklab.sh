@@ -18,7 +18,7 @@ print_info "🚀 Creating Central NCC Hub..."
 gcloud network-connectivity hubs create global-hub --quiet || true
 
 print_info "🔍 Discovering VPCs and VPN Tunnels..."
-# Find VPN Tunnels (typically there are 4 tunnels, 2 for each office)
+# Find VPN Tunnels
 TUNNELS=$(gcloud compute vpn-tunnels list --format="value(name,selfLink,region)")
 echo "Found VPN Tunnels:"
 echo "$TUNNELS"
@@ -28,12 +28,12 @@ VPCS=$(gcloud compute networks list --format="value(name,selfLink)")
 echo "Found VPCs:"
 echo "$VPCS"
 
-# Group VPN tunnels by region or name
-TUNNELS_1=$(echo "$TUNNELS" | grep -i "office-1" | awk '{print $2}' | paste -sd "," -)
-REGION_1=$(echo "$TUNNELS" | grep -i "office-1" | head -n 1 | awk '{print $3}' | awk -F/ '{print $NF}')
+# Group VPN tunnels by region or name (Only take the tunnels in the routing VPC)
+TUNNELS_1=$(echo "$TUNNELS" | grep -i "routing-to-onprem-office1" | awk '{print $2}' | paste -sd "," -)
+REGION_1=$(echo "$TUNNELS" | grep -i "routing-to-onprem-office1" | head -n 1 | awk '{print $3}' | awk -F/ '{print $NF}')
 
-TUNNELS_2=$(echo "$TUNNELS" | grep -i "office-2" | awk '{print $2}' | paste -sd "," -)
-REGION_2=$(echo "$TUNNELS" | grep -i "office-2" | head -n 1 | awk '{print $3}' | awk -F/ '{print $NF}')
+TUNNELS_2=$(echo "$TUNNELS" | grep -i "routing-to-onprem-office2" | awk '{print $2}' | paste -sd "," -)
+REGION_2=$(echo "$TUNNELS" | grep -i "routing-to-onprem-office2" | head -n 1 | awk '{print $3}' | awk -F/ '{print $NF}')
 
 if [ ! -z "$TUNNELS_1" ]; then
     print_info "Creating Spoke for Office 1 VPN Tunnels..."
@@ -56,13 +56,9 @@ if [ ! -z "$TUNNELS_2" ]; then
 fi
 
 print_info "🚀 Task 2 & 3: Connect VPC to VPC & VPC to On-prem"
-VPC_WORKLOAD_1=$(echo "$VPCS" | grep -i "workload-1" | awk '{print $2}')
-VPC_WORKLOAD_2=$(echo "$VPCS" | grep -i "workload-2" | awk '{print $2}')
+VPC_WORKLOAD_1=$(echo "$VPCS" | grep -i "workload-vpc-1" | awk '{print $2}')
+VPC_WORKLOAD_2=$(echo "$VPCS" | grep -i "workload-vpc-2" | awk '{print $2}')
 VPC_ONPREM_1=$(echo "$VPCS" | grep -i "office-1" | awk '{print $2}')
-
-# For Task 2 and 3 naming constraints
-# Task 2: workload-1, workload-2
-# Task 3: hybrid
 
 if [ ! -z "$VPC_WORKLOAD_1" ]; then
     print_info "Creating Spoke for Workload VPC 1..."
@@ -93,8 +89,8 @@ print_info "Discovering VMs to run ping tests (This is required for Qwiklabs sco
 VMS=$(gcloud compute instances list --format="value(name,zone,networkInterfaces[0].networkIP)")
 
 # Test Task 1: Connect 2 On-prem VPCs (Ping between office-1 and office-2)
-VM_OFFICE_1=$(echo "$VMS" | grep -i "office-1" | head -n 1)
-VM_OFFICE_2=$(echo "$VMS" | grep -i "office-2" | head -n 1)
+VM_OFFICE_1=$(echo "$VMS" | grep -i "office1" | head -n 1)
+VM_OFFICE_2=$(echo "$VMS" | grep -i "office2" | head -n 1)
 if [ ! -z "$VM_OFFICE_1" ] && [ ! -z "$VM_OFFICE_2" ]; then
     VM1_NAME=$(echo "$VM_OFFICE_1" | awk '{print $1}')
     VM1_ZONE=$(echo "$VM_OFFICE_1" | awk '{print $2}')
