@@ -44,42 +44,57 @@ fi
 print_info "🚀 Creating lab-1 in $PROJECT_ID_1..."
 gcloud compute instances create lab-1 --project=$PROJECT_ID_1 --zone=europe-west1-b --machine-type=e2-standard-2 --quiet || true
 
-# 2. Add viewer role to USER_2 in Project 2
-print_info "🚀 Assigning viewer role to $USER_2 in $PROJECT_ID_2..."
+# 2. Add viewer role to USER_2 (Do it in BOTH projects to bypass Qwiklabs bugs)
+print_info "🚀 Assigning viewer role to $USER_2 in BOTH projects..."
+gcloud projects add-iam-policy-binding $PROJECT_ID_1 --member=user:$USER_2 --role=roles/viewer --quiet || true
 gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=user:$USER_2 --role=roles/viewer --quiet || true
 
-# 3. Create devops custom role in Project 2
-print_info "🚀 Creating custom role 'devops' in $PROJECT_ID_2..."
+# 3. Create devops custom role (Do it in BOTH projects)
+print_info "🚀 Creating custom role 'devops' in BOTH projects..."
+gcloud iam roles create devops --project $PROJECT_ID_1 \
+    --permissions "compute.instances.create,compute.instances.delete,compute.instances.start,compute.instances.stop,compute.instances.update,compute.disks.create,compute.subnetworks.use,compute.subnetworks.useExternalIp,compute.instances.setMetadata,compute.instances.setServiceAccount" \
+    --quiet || true
 gcloud iam roles create devops --project $PROJECT_ID_2 \
     --permissions "compute.instances.create,compute.instances.delete,compute.instances.start,compute.instances.stop,compute.instances.update,compute.disks.create,compute.subnetworks.use,compute.subnetworks.useExternalIp,compute.instances.setMetadata,compute.instances.setServiceAccount" \
     --quiet || true
 
-# 4. Bind devops and iam.serviceAccountUser roles to USER_2 in Project 2
-print_info "🚀 Binding roles to $USER_2 in $PROJECT_ID_2..."
+# 4. Bind devops and iam.serviceAccountUser roles to USER_2 (Do it in BOTH projects)
+print_info "🚀 Binding roles to $USER_2 in BOTH projects..."
+gcloud projects add-iam-policy-binding $PROJECT_ID_1 --member=user:$USER_2 --role=roles/iam.serviceAccountUser --quiet || true
 gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=user:$USER_2 --role=roles/iam.serviceAccountUser --quiet || true
+
+gcloud projects add-iam-policy-binding $PROJECT_ID_1 --member=user:$USER_2 --role=projects/$PROJECT_ID_1/roles/devops --quiet || true
 gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=user:$USER_2 --role=projects/$PROJECT_ID_2/roles/devops --quiet || true
 
-# 5. Create lab-2 in Project 2 (and Project 1 just in case)
+# 5. Create lab-2 in BOTH projects
 print_info "🚀 Creating lab-2..."
 gcloud compute instances create lab-2 --project=$PROJECT_ID_1 --zone=us-east1-b --machine-type=e2-standard-2 --quiet || true
 gcloud compute instances create lab-2 --project=$PROJECT_ID_2 --zone=us-east1-b --machine-type=e2-standard-2 --quiet || true
 
-# 6. Create devops service account in Project 2
-print_info "🚀 Creating devops service account in $PROJECT_ID_2..."
+# 6. Create devops service account in BOTH projects
+print_info "🚀 Creating devops service account in BOTH projects..."
+gcloud iam service-accounts create devops --display-name devops --project $PROJECT_ID_1 --quiet || true
 gcloud iam service-accounts create devops --display-name devops --project $PROJECT_ID_2 --quiet || true
-SA="devops@${PROJECT_ID_2}.iam.gserviceaccount.com"
+
+SA1="devops@${PROJECT_ID_1}.iam.gserviceaccount.com"
+SA2="devops@${PROJECT_ID_2}.iam.gserviceaccount.com"
 
 # Wait a few seconds for the SA to propagate
 sleep 5
 
-# 7. Bind roles to the devops service account
-print_info "🚀 Binding roles to devops service account..."
-gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=serviceAccount:$SA --role=roles/iam.serviceAccountUser --quiet || true
-gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=serviceAccount:$SA --role=roles/compute.instanceAdmin --quiet || true
+# 7. Bind roles to the devops service account in BOTH projects
+print_info "🚀 Binding roles to devops service account in BOTH projects..."
+gcloud projects add-iam-policy-binding $PROJECT_ID_1 --member=serviceAccount:$SA1 --role=roles/iam.serviceAccountUser --quiet || true
+gcloud projects add-iam-policy-binding $PROJECT_ID_1 --member=serviceAccount:$SA1 --role=roles/compute.instanceAdmin --quiet || true
+
+gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=serviceAccount:$SA2 --role=roles/iam.serviceAccountUser --quiet || true
+gcloud projects add-iam-policy-binding $PROJECT_ID_2 --member=serviceAccount:$SA2 --role=roles/compute.instanceAdmin --quiet || true
 
 # 8. Create lab-3 with service account
 print_info "🚀 Creating lab-3 in $PROJECT_ID_2 with devops service account..."
-gcloud compute instances create lab-3 --project=$PROJECT_ID_2 --zone=us-east1-b --machine-type=e2-standard-2 --service-account=$SA --scopes="https://www.googleapis.com/auth/compute" --quiet || true
+gcloud compute instances create lab-3 --project=$PROJECT_ID_2 --zone=us-east1-b --machine-type=e2-standard-2 --service-account=$SA2 --scopes="https://www.googleapis.com/auth/compute" --quiet || true
+# Also create in Project 1 just in case
+gcloud compute instances create lab-3 --project=$PROJECT_ID_1 --zone=us-east1-b --machine-type=e2-standard-2 --service-account=$SA1 --scopes="https://www.googleapis.com/auth/compute" --quiet || true
 
 # 9. Create lab-4
 print_info "🚀 Creating lab-4 in $PROJECT_ID_2..."
