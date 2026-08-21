@@ -28,7 +28,11 @@ Task 1 requires executing the Gemini API call from within the Vertex AI Workbenc
    curl -LO https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-29-GSP517/prompt.ipynb
    ```
 5. Double-click to open the new `prompt.ipynb` from the left file browser.
-6. From the top menu, select **Run > Run All Cells**.
+6. **Execution Steps (Important):**
+   - Click the first cell and press **Shift + Enter** to run it.
+   - Run the second cell (`app.kernel.do_shutdown(True)`). A prompt will ask to restart the kernel. Click **Restart**.
+   - Wait a few seconds for the kernel to restart.
+   - Click the third cell (starts with `from google import genai`), right-click it, and select **"Run Selected Cell and All Below"** (or just manually run the remaining cells one by one).
 7. Return to Qwiklabs and click **Check Progress** for Task 1!
 
 🎉 **100% Score Guaranteed!**
