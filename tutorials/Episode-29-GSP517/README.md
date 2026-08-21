@@ -18,6 +18,15 @@ If Task 1 does **not** get a green checkmark, you will need to complete it manua
 1. In Google Cloud Console, go to **Vertex AI > Workbench**.
 2. Click **Open JupyterLab** next to your instance.
 3. Open the `prompt.ipynb` file.
-4. Replace the prompt in Cell 5 with the large prompt provided in the lab instructions.
-5. Run all cells and save the notebook.
-6. Click "Check my progress" for Task 1.
+4. In **Cell 5**, replace the `-d '{ ... }'` block (where it says "Why is the sky blue?") with the following exact payload:
+```json
+-d '{
+  "contents": {
+    "role": "USER",
+    "parts": { "text": "I am a Chef. I need to create Japanese recipes for customers who want low sodium meals. However, I do not want to include recipes that use ingredients associated with a peanuts food allergy. I have ahi tuna, fresh ginger, and edamame in my kitchen and other ingredients. The customer wine preference is red. Please provide some for meal recommendations. For each recommendation include preparation instructions, time to prepare and the recipe title at the beginning of the response. Then include the wine paring for each recommendation. At the end of the recommendation provide the calories associated with the meal and the nutritional facts." }
+  }
+}'
+```
+5. Run all cells (`Run > Run All Cells`) and wait for the response to generate at the bottom.
+6. **Save** the notebook (`File > Save Notebook`).
+7. Click "Check my progress" for Task 1 on Qwiklabs.
