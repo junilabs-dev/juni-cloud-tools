@@ -3,30 +3,32 @@
 ## 🔗 YouTube Tutorial
 [![YouTube Video](https://img.shields.io/badge/YouTube-Watch%20Video-red?style=for-the-badge&logo=youtube)](https://youtu.be/YOUR_VIDEO_ID)
 
-## 🚀 Quick Execution
-Run the following commands in your Cloud Shell to automate the lab:
+## 🚀 Quick Execution (Tasks 2, 3, 4, 5)
+Run the following commands in your **Google Cloud Shell** to automate the infrastructure, Dockerization, and Cloud Run deployment tasks:
+
 ```bash
 curl -sL https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-29-GSP517/quicklab.sh -o quicklab.sh
 sudo chmod +x quicklab.sh
 ./quicklab.sh
 ```
 
-## ⚠️ Important Note for Task 1
-The script automatically tests the Gemini API using `cURL` from your Cloud Shell, which often satisfies the grading check for Task 1. 
+> **⚠️ IMPORTANT FOR TASK 3:** At the end of the script, it will launch the local Streamlit server in the foreground. **Do not close it!** Go to Qwiklabs, click "Check Progress" for Task 3 to get your points, and then press `CTRL+C` in your terminal to stop it.
 
-If Task 1 does **not** get a green checkmark, you will need to complete it manually:
-1. In Google Cloud Console, go to **Vertex AI > Workbench**.
-2. Click **Open JupyterLab** next to your instance.
-3. Open the `prompt.ipynb` file.
-4. In **Cell 5**, replace the `-d '{ ... }'` block (where it says "Why is the sky blue?") with the following exact payload:
-```json
--d '{
-  "contents": {
-    "role": "USER",
-    "parts": { "text": "I am a Chef. I need to create Japanese recipes for customers who want low sodium meals. However, I do not want to include recipes that use ingredients associated with a peanuts food allergy. I have ahi tuna, fresh ginger, and edamame in my kitchen and other ingredients. The customer wine preference is red. Please provide some for meal recommendations. For each recommendation include preparation instructions, time to prepare and the recipe title at the beginning of the response. Then include the wine paring for each recommendation. At the end of the recommendation provide the calories associated with the meal and the nutritional facts." }
-  }
-}'
-```
-5. Run all cells (`Run > Run All Cells`) and wait for the response to generate at the bottom.
-6. **Save** the notebook (`File > Save Notebook`).
-7. Click "Check my progress" for Task 1 on Qwiklabs.
+---
+
+## 🤖 Task 1 (Jupyter Notebook Automation)
+Task 1 requires executing the Gemini API call from within the Vertex AI Workbench notebook. We have fully automated this step for you.
+
+1. In the Google Cloud Console, open the **Navigation Menu** and go to **Vertex AI > Workbench**.
+2. Locate the `generative-ai-jupyterlab` instance and click **Open JupyterLab**.
+3. In JupyterLab, click the **Terminal** icon from the Launcher tab.
+4. Run the following commands to download our pre-solved notebook:
+   ```bash
+   rm prompt.ipynb
+   curl -LO https://raw.githubusercontent.com/junilabs-dev/juni-cloud-tools/main/tutorials/Episode-29-GSP517/prompt.ipynb
+   ```
+5. Double-click to open the new `prompt.ipynb` from the left file browser.
+6. From the top menu, select **Run > Run All Cells**.
+7. Return to Qwiklabs and click **Check Progress** for Task 1!
+
+🎉 **100% Score Guaranteed!**
