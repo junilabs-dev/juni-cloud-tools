@@ -19,7 +19,7 @@ TOKEN=$(gcloud auth print-access-token)
 curl -s -X POST \
 -H "Authorization: Bearer ${TOKEN}" \
 -H "Content-Type: application/json" \
-https://${REGION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${REGION}/publishers/google/models/gemini-1.5-flash:generateContent \
+https://${REGION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${REGION}/publishers/google/models/gemini-2.5-flash:generateContent \
 -d '{
   "contents": [
     {
@@ -40,9 +40,10 @@ print_info "🚀 Task 2: Setting up repo and modifying chef.py"
 git clone https://github.com/GoogleCloudPlatform/generative-ai.git
 cd generative-ai/gemini/sample-apps/gemini-streamlit-cloudrun
 echo "google-cloud-logging" >> requirements.txt
+echo "google-cloud-aiplatform" >> requirements.txt
 
-# Download chef.py
-curl -sL https://storage.googleapis.com/spls/gsp517/chef.py -o chef.py
+# Download chef.py from the project bucket
+gsutil cp gs://${PROJECT_ID}-gemini/chef.py .
 
 # Use a python script to robustly patch chef.py
 cat << 'EOF' > patch_chef.py
@@ -61,7 +62,10 @@ content = content.replace(
 new_prompt = '''prompt = f"""I am a Chef. I need to create {cuisine} \n recipes for customers who want {dietary_preference} meals. \n However, don't include recipes that use ingredients with the customer's {allergy} allergy. \n I have {ingredient_1}, \n {ingredient_2}, \n and {ingredient_3} \n in my kitchen and other ingredients. \n The customer's wine preference is {wine} \n Please provide some for meal recommendations. For each recommendation include preparation instructions, time to prepare and the recipe title at the beginning of the response. Then include the wine paring for each recommendation. At the end of the recommendation provide the calories associated with the meal and the nutritional facts. """'''
 content = content.replace('prompt = f"""Why is the sky blue?"""', new_prompt)
 
-# Hardcode the project and region to bypass any env variable mismatches
+# Hardcode the project and replace GEMINI_FLASH_MODEL_ID
+content = content.replace('GCP_PROJECT_ID', sys.argv[1])
+content = content.replace('GEMINI_FLASH_MODEL_ID', 'gemini-2.5-flash')
+# Fallback if it uses os.environ.get
 content = content.replace('os.environ.get("GCP_PROJECT")', f'"{sys.argv[1]}"')
 content = content.replace('os.environ.get("GCP_REGION")', f'"{sys.argv[2]}"')
 
