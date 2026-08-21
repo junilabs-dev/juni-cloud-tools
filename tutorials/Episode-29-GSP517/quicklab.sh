@@ -79,36 +79,17 @@ python3 patch_chef.py "$PROJECT_ID" "$REGION"
 print_info "🚀 Uploading chef.py to Cloud Storage..."
 gsutil cp chef.py gs://${PROJECT_ID}-generative-ai/
 
-# Task 3: Test the application (Headless Execution via Python script)
+# Task 3: Test the application locally
 print_info "🚀 Task 3: Simulating local application test..."
-cat << 'EOF' > headless_test.py
-import os
-import sys
-import logging
-from google.cloud import logging as cloud_logging
-import vertexai
-from vertexai.preview.generative_models import GenerativeModel, GenerationConfig
+python3 -m venv gemini-streamlit
+source gemini-streamlit/bin/activate
+python3 -m pip install -r requirements.txt > /dev/null 2>&1
+nohup streamlit run chef.py --browser.serverAddress=localhost --server.enableCORS=false --server.enableXsrfProtection=false --server.port 8080 > streamlit.log 2>&1 &
 
-# Configure Cloud Logging to mimic Streamlit execution
-log_client = cloud_logging.Client()
-log_client.setup_logging()
-
-PROJECT_ID = sys.argv[1]
-LOCATION = sys.argv[2]
-vertexai.init(project=PROJECT_ID, location=LOCATION)
-
-model = GenerativeModel("gemini-2.5-flash")
-prompt = """I am a Chef. I need to create Japanese \n recipes for customers who want low sodium meals. \n However, don't include recipes that use ingredients with the customer's peanuts allergy. \n I have ahi tuna, \n fresh ginger, \n and edamame \n in my kitchen and other ingredients. \n The customer's wine preference is Red \n Please provide some for meal recommendations. For each recommendation include preparation instructions, time to prepare and the recipe title at the beginning of the response. Then include the wine paring for each recommendation. At the end of the recommendation provide the calories associated with the meal and the nutritional facts. """
-
-config = GenerationConfig(temperature=0.8, max_output_tokens=2048)
-response = model.generate_content(prompt, generation_config=config)
-logging.info(response.text)
-print("Headless test complete. Response logged to Cloud Logging.")
-EOF
-
-# Install required packages for the headless test
-pip install --user google-cloud-logging google-cloud-aiplatform > /dev/null 2>&1
-python3 headless_test.py "$PROJECT_ID" "$REGION"
+print_info "⏳ Waiting 15 seconds for Streamlit server to start..."
+sleep 15
+curl -s http://localhost:8080 > /dev/null
+print_info "✅ Local App running and tested."
 
 # Task 4: Modify Dockerfile and push to Artifact Registry
 print_info "🚀 Task 4: Modifying Dockerfile and pushing to Artifact Registry"
@@ -137,4 +118,11 @@ gcloud run deploy $SERVICE_NAME \
     --quiet
 
 success "🎉 Lab GSP517 Complete!"
-print_info "Click Check Progress for all tasks!"
+print_info "Click Check Progress for Tasks 2, 4, and 5!"
+echo ""
+print_info "🚀 Starting local Streamlit server in foreground for Task 3 grading..."
+print_info "⚠️ LEAVE THIS RUNNING! Go to Qwiklabs and click 'Check Progress' for Task 3."
+print_info "Once you get the green check for Task 3, you can press CTRL+C to stop it."
+echo ""
+source gemini-streamlit/bin/activate
+streamlit run chef.py --browser.serverAddress=localhost --server.enableCORS=false --server.enableXsrfProtection=false --server.port 8080
